@@ -1,0 +1,7 @@
+/Users/Will/IdeaProjects/HSA/clustalo
+/Users/Will/IdeaProjects/HSA/nt2aa.pl
+Mode,none
+Expand,false
+HLA_DRB1,i1,i3
+HLA_DPB1,i1,i3
+HLA_DQB1,i1,i3

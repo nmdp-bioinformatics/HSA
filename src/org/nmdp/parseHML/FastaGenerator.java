@@ -1,5 +1,12 @@
 package org.nmdp.parseHML;
 
+import org.apache.commons.io.FilenameUtils;
+import org.nmdp.HLAGene.HLAGene;
+import org.nmdp.HLAGene.SequenceData;
+import org.nmdp.databaseAccess.DatabaseUtil;
+import org.nmdp.scheduler.Scheduler;
+import org.nmdp.scheduler.Task;
+import org.nmdp.util.FileSystem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -14,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class FastaGenerator {
@@ -23,35 +31,40 @@ public class FastaGenerator {
     private File output;
     // The print writer to generate output file
     private PrintWriter pr;
+    private HashMap<HLAGene, PrintWriter> prMap;
     private String sampleID;
     private GLSConverter glsConverter;
     private Mode mode;
     private boolean expand;
+    private String fileName;
+    private  Scheduler scheduler;
 
-    public FastaGenerator(Mode mode){
+    public FastaGenerator(Mode mode, Scheduler scheduler){
+        this.scheduler = scheduler;
         this.mode = mode;
     }
 
-    public FastaGenerator(Mode mode, boolean expand){
+    public FastaGenerator(Mode mode, boolean expand, Scheduler scheduler){
         this.mode = mode;
         this.expand = expand;
+        this.scheduler = scheduler;
     }
 
     /**
      * The method to parse the input file from HML to fasta.
      *
-     * @param intput The input file.
-     * @param output The output file.
+     * @param input The input file.
      * @throws ParserConfigurationException
      * @throws SAXException
      * @throws IOException
      */
-    public void run(File intput, File output)
+    public void run(File input)
             throws ParserConfigurationException, SAXException, IOException {
-
         // Setup input and output file
-        this.input = intput;
-        this.output = output;
+        this.input = input;
+
+        fileName = FilenameUtils.removeExtension(this.input.getName());
+        output = FileSystem.getFastaFile(fileName);
 
         glsConverter = new GLSConverter();
         setupPrinter();
@@ -66,8 +79,22 @@ public class FastaGenerator {
         }
 
         //close printer
-        pr.close();
+        closeAllPrint();
 
+    }
+
+    private void closeAllPrint() {
+        pr.close();
+        pr = null;
+        for(HLAGene gene : prMap.keySet()){
+            if(prMap.get(gene) != null){
+                PrintWriter pr = prMap.get(gene);
+                pr.close();
+                scheduler.addTask(new Task(gene, fileName));
+                pr = null;
+            }
+        }
+        prMap.clear();
     }
 
     /**
@@ -95,6 +122,29 @@ public class FastaGenerator {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        prMap = new HashMap<>();
+    }
+
+    /**
+     * Get print writer base on gene type.
+     * @param gene
+     * @return
+     */
+    private PrintWriter getPrintWriter(HLAGene gene){
+        if(prMap.containsKey(gene)){
+            return prMap.get(gene);
+        }else{
+            PrintWriter pr = null;
+            try {
+                File file = FileSystem.getFastaFile(gene, fileName);
+                pr = new PrintWriter(file);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            prMap.put(gene, pr);
+            return pr;
+
+        }
     }
 
     /**
@@ -118,12 +168,15 @@ public class FastaGenerator {
 
     private void setSampleID(Node smapleNode){
         Element sample = (Element) smapleNode;
-        sampleID = ">id|" + sample.getAttribute("id") + "|";
+        sampleID = sample.getAttribute("id");
     }
 
-    private void printSampleID(){
-        pr.print(sampleID);
-        System.out.print(sampleID);
+    private void printSampleID(List<PrintWriter> prList){
+        for(PrintWriter pr : prList){
+            pr.print(">id|" + sampleID + "|");
+            System.out.print(">id|" + sampleID + "|");
+        }
+
     }
 
     /**
@@ -137,94 +190,166 @@ public class FastaGenerator {
         NodeList  sequenceList = element.getElementsByTagName("consensus-sequence-block");
 
         List<String> Gls = getGls(element);
+
+        List<PrintWriter> prList = new ArrayList<>();
+        prList.add(pr);
+
         // Print haploid 1
-        printSampleID();
+        SequenceData seqData1 = new SequenceData(sampleID);
         Element haplod1 = (Element) haploids.item(0);
-        printAttribute(haplod1, "locus");
-        printAttribute(haplod1,"type");
+        HLAGene gene = getGeneType(haplod1);
+        prList.add(getPrintWriter(gene));
+        printSampleID(prList);
+
+        printAttribute(prList, haplod1, "locus");
+        seqData1.setLocus(haplod1.getAttribute("locus"));
+
+        printAttribute(prList, haplod1,"type");
+        seqData1.setType(haplod1.getAttribute("type"));
+
         switch(mode){
-            case None:
-                printAttributeLast("gls", Gls.get(0));
+            case NONE:
+                printAttributeLast(prList, "gls", Gls.get(0));
+                seqData1.setGls(Gls.get(0));
                 break;
-            case Decode:
-                printAttribute("gls", Gls.get(0));
+            case DECODE:
+                printAttribute(prList, "gls", Gls.get(0));
                 try {
-                    pr.print(glsConverter.decode(Gls.get(0), expand));
+                    String decodeGls = glsConverter.decode(Gls.get(0), expand);
+                    print(prList, decodeGls);
+                    seqData1.setGls(decodeGls);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    seqData1.setGls(Gls.get(0));
+                    System.out.println("Fail to decode");
                 }
                 break;
-            case Encode:
-                printAttribute("gls", Gls.get(0));
+            case ENCODE:
+                printAttribute(prList, "gls", Gls.get(0));
                 try {
-                    pr.print(glsConverter.encode(Gls.get(0)));
+                    String encodeGls = glsConverter.encode(Gls.get(0));
+                    print(prList, encodeGls);
+                    seqData1.setGls(encodeGls);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    seqData1.setGls(Gls.get(0));
+                    System.out.println("Fail to encode");
                 }
                 break;
         }
-        printSeq("|PS1", getPs1(sequenceList));
+        String sequence1 = getPs1(sequenceList);
+        printSeq(prList, "|PS1", sequence1);
+        //todo: enable insert
+        //seqData1.setSequence(sequence1);
+
+        //insert into database
+        DatabaseUtil.insertSeqData(seqData1);
 
 
         //Print haploid 2
-        printSampleID();
+        printSampleID(prList);
+        SequenceData seqData2 = new SequenceData(sampleID);
         Element haplod2 = (Element) haploids.item(1);
-        printAttribute(haplod2, "locus");
-        printAttribute(haplod2,"type");
+
+        printAttribute(prList, haplod2, "locus");
+        seqData2.setLocus(haplod2.getAttribute("locus"));
+
+        printAttribute(prList, haplod2,"type");
+        seqData2.setLocus(haplod2.getAttribute("type"));
+
         switch(mode){
-            case None:
-                printAttributeLast("gls", Gls.get(1));
+            case NONE:
+                printAttributeLast(prList, "gls", Gls.get(1));
+                seqData2.setGls(Gls.get(1));
                 break;
-            case Decode:
-                printAttribute("gls", Gls.get(1));
+            case DECODE:
+                printAttribute(prList, "gls", Gls.get(1));
                 try {
-                    pr.print(glsConverter.decode(Gls.get(1), expand));
+                    String decodeGls = glsConverter.decode(Gls.get(1),expand);
+                    print(prList, decodeGls);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    seqData2.setGls(Gls.get(1));
+                    System.out.println("Fail to decode");
                 }
                 break;
-            case Encode:
-                printAttribute("gls", Gls.get(0));
+            case ENCODE:
+                printAttribute(prList, "gls", Gls.get(1));
                 try {
-                    pr.print(glsConverter.encode(Gls.get(1)));
+                    String encodeGls = glsConverter.encode(Gls.get(1));
+                    print(prList, encodeGls);
+                    seqData2.setGls(encodeGls);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    seqData2.setGls(Gls.get(1));
+                    System.out.println("Fail to encode");
                 }
                 break;
         }
-        printSeq("|PS2", getPs2(sequenceList));
+
+        String sequence2 = getPs2(sequenceList);
+        printSeq(prList, "|PS2", sequence2);
+        seqData2.setSequence(sequence2);
 
         //Print a new line as divider
-        pr.println();
+        println(prList);
+        //todo: enable insert
+        //DatabaseUtil.insertSeqData(seqData2);
 
     }
 
-    private void printSeq(String ps, String seq) {
-        pr.println(ps);
-        pr.println(seq);
-        System.out.println(ps);
-        System.out.println(seq);
+    /**
+     * Return gene type base on name. Exp  HLA-A will return HLA)A;
+     * @param e
+     * @return
+     */
+    private HLAGene getGeneType(Element e){
+        String gene = e.getAttribute("locus");
+        gene = gene.replace('-','_');
+        return HLAGene.valueOf(gene);
     }
 
-    private void printAttribute(String atrrName, String value) {
-        pr.print(atrrName + "|");
-        pr.print(value + "|");
+    private void print(List<PrintWriter> prList, String s){
+        for(PrintWriter pr: prList) {
+            pr.println(s);
+        }
+    }
+
+    private void println(List<PrintWriter> prList){
+        for(PrintWriter pr: prList) {
+            pr.println();
+        }
+    }
+
+    private void printSeq(List<PrintWriter> prList, String ps, String seq) {
+        for(PrintWriter pr: prList) {
+            pr.println(ps);
+            pr.println(seq);
+            System.out.println(ps);
+            System.out.println(seq);
+        }
+    }
+
+    private void printAttribute(List<PrintWriter> prList, String atrrName, String value) {
+        for(PrintWriter pr: prList){
+            pr.print(atrrName + "|");
+            pr.print(value + "|");
+        }
 
     }
 
-    private void printAttributeLast(String atrrName, String value) {
-        pr.print(atrrName + "|");
-        pr.print(value);
-        System.out.print(atrrName + "|");
-        System.out.print(value);
-
+    private void printAttributeLast(List<PrintWriter> prList, String atrrName, String value) {
+        for(PrintWriter pr: prList){
+            pr.print(atrrName + "|");
+            pr.print(value);
+            System.out.print(atrrName + "|");
+            System.out.print(value);
+        }
     }
 
-    private void printAttribute(Element element, String atrrName) {
-        pr.print(atrrName + "|");
-        pr.print(element.getAttribute(atrrName) + "|");
-        System.out.print(atrrName + "|");
-        System.out.print(element.getAttribute(atrrName) + "|");
+    private void printAttribute(List<PrintWriter> prList, Element element, String atrrName) {
+        for(PrintWriter pr: prList){
+            pr.print(atrrName + "|");
+            pr.print(element.getAttribute(atrrName) + "|");
+            System.out.print(atrrName + "|");
+            System.out.print(element.getAttribute(atrrName) + "|");
+        }
     }
 
     /**

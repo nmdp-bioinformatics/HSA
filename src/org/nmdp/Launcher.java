@@ -1,72 +1,47 @@
 package org.nmdp;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.nmdp.parseHML.FastaGenerator;
-import org.nmdp.parseHML.Mode;
 
-import java.io.File;
+import org.nmdp.config.Configuration;
+import org.nmdp.databaseAccess.DatabaseUtil;
+import org.nmdp.scheduler.Scheduler;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class Launcher {
-    private static FastaGenerator generetor;
+    private static Scheduler scheduler;
 
     public static void main(String[] args) {
-        Mode mode;
-        if(args.length == 0){
-            mode = Mode.None;
-            generetor = new FastaGenerator(mode);
-        }else if (args.length ==2 && args[0].toLowerCase().equals("decode")){
-            mode = Mode.Decode;
-            String expand = args[1].toLowerCase();
-            if(expand.equals("f") || expand.equals("false")){
-                generetor = new FastaGenerator(mode, false);
-            }else if (expand.equals("t") || expand.equals("true")){
-                generetor = new FastaGenerator(mode, true);
-            }else{
-                System.out.println("Illegal argument, must set true or false for expand.");
-                return;
-            }
-
-        }else if (args[0].toLowerCase().equals("encode")){
-            mode = Mode.Encode;
-            generetor = new FastaGenerator(mode);
-        }else{
-            System.out.println("Illegal argument, must be null, encode, or decode.");
-            return;
-        }
-
-        File folder = new File("./input");
-        File outputFolder = new File("./output");
         try {
-            if (outputFolder.exists()) {
-                FileUtils.cleanDirectory(outputFolder);
-            }else{
-                outputFolder.mkdir();
-            }
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        File[] inputList = folder.listFiles();
-        for (int i = 0; i < inputList.length; i++) {
-            if (inputList[i].getName().toLowerCase().contains("hml")) {
-                String fileName = FilenameUtils.removeExtension(inputList[i].getName());
-                process(inputList[i], fileName);
-            }
-
+            Configuration.loadSetting();
+        } catch (FileNotFoundException e) {
+            System.out.println("config file is missing. program stopped");
         }
 
-    }
+//        //set up database
+//        DatabaseUtil.connectDatabase();
+//        DatabaseUtil.createSeqTable();
+//        DatabaseUtil.creatExonTable();
+//
+        scheduler = new Scheduler();
 
-    private static void process(File input, String outputName) {
-
-        File output = new File("./output/" + outputName + ".fasta");
         try {
-            generetor.run(input, output);
-        } catch (Exception e) {
+            scheduler.start(Configuration.mode,Configuration.expand);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
+//
+//        //clean up connection to database
+//        DatabaseUtil.cleanUp();
+
     }
+
+
 
 }
