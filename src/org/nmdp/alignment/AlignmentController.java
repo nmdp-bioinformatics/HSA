@@ -9,7 +9,7 @@ import java.io.IOException;
 
 
 /**
- * Created by Will on 6/4/16.
+ * Created by wwang on 6/4/16.
  */
 public class AlignmentController {
 
