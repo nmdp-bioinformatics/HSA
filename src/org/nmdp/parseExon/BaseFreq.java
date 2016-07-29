@@ -37,7 +37,7 @@ public class BaseFreq {
 			return true;
 		}
 	}
-//Calculate the base frequency from frequency table
+//Calculate the base frequency from frequency table.
 	
 	public String getDiff(SectionName type, int position, char c){
 		String check = getFreq(getCount(c));
@@ -47,7 +47,7 @@ public class BaseFreq {
 		StringBuffer sb = new StringBuffer();
 		sb.append(type.toString());
 		sb.append(":");
-		//fix
+		//need to define the indel.
 		sb.append(position+1);
 		setTotal();
 		if(c != 'A' && A != 0){
