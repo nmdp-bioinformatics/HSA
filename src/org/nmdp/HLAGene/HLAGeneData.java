@@ -2,6 +2,8 @@ package org.nmdp.HLAGene;
 
 
 
+import org.nmdp.HLAGene.SectionName;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,13 +12,15 @@ import java.util.List;
  * Created by wwang on 5/30/16.
  */
 public class HLAGeneData  extends ExonIntronData{
+    public static final String TAG = " HLAGeneData ";
     static SectionName start;
     static SectionName end;
-    static List<SectionName> geneSections = new ArrayList<>();
+    public static List<SectionName> geneSections = new ArrayList<>();
     static String cDNA;
 
     public static void setType(SectionName start, SectionName end){
         List<SectionName> dic = Arrays.asList(SectionName.values());
+        geneSections.clear();
         HLAGeneData.start = start;
         HLAGeneData.end = end;
 
@@ -45,21 +49,45 @@ public class HLAGeneData  extends ExonIntronData{
         for(SectionName sn : geneSections){
             try{
                 if(sn.isExon()){
-                    geneData.put(sn, filterDivider(data.substring(extron.get(extornIndex), extron.get(extornIndex+1))));
+                    geneData.put(sn, filterDivider(data.substring(extron.get(extornIndex), extron.get(extornIndex+1)+1)));
                     sb.append(geneData.get(sn));
-                    extornIndex++;
+                    extornIndex+=2;
                 }else {
-                    geneData.put(sn, filterDivider(data.substring(intron.get(intronIndex), intron.get(intronIndex+1))));
-                    intronIndex++;
+                    geneData.put(sn, filterDivider(data.substring(intron.get(intronIndex), intron.get(intronIndex+1)+1)));
+                    intronIndex+=2;
                 }
             }catch (IndexOutOfBoundsException e){
-                System.out.println("The input format is wrong. It contains more sections than setting.");
+                System.out.println(TAG + "The input format is wrong. It contains more sections than setting.");
             }
 
         }
         cDNA = sb.toString();
         sb = null;
 
+    }
+
+    @Override
+    public void setExonIntronNoFilter(String data, List<Integer> extron, List<Integer> intron) {
+        int extornIndex = 0;
+        int intronIndex = 0;
+        StringBuilder sb = new StringBuilder();
+        for(SectionName sn : geneSections){
+            try{
+                if(sn.isExon()){
+                    geneData.put(sn, data.substring(extron.get(extornIndex), extron.get(extornIndex+1)+1));
+                    sb.append(geneData.get(sn));
+                    extornIndex+=2;
+                }else {
+                    geneData.put(sn, data.substring(intron.get(intronIndex), intron.get(intronIndex+1)+1));
+                    intronIndex+=2;
+                }
+            }catch (IndexOutOfBoundsException e){
+                System.out.println(TAG + "The input format is wrong. It contains more sections than setting.");
+            }
+
+        }
+        cDNA = sb.toString();
+        sb = null;
     }
 
     @Override
@@ -74,10 +102,14 @@ public class HLAGeneData  extends ExonIntronData{
         sb.append("|gls|");
         sb.append(getGls());
         sb.append(getPhase());
-        sb.append("\n");
-        sb.append(cDNA);
         return sb.toString();
     }
+
+    @Override
+    public String getCDNA() {
+        return cDNA;
+    }
+
     @Override
     public String getCDS() {
         return "";

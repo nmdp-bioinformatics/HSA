@@ -30,10 +30,6 @@ public enum SectionName {
 		this.order = order;
 	}
 
-	public boolean isExon(){
-		return this.value == 1;
-	}
-
 	public SectionName get(int order){
 		List<SectionName> values = Arrays.asList(SectionName.values());
 		for(SectionName  item : values){
@@ -42,6 +38,10 @@ public enum SectionName {
 			}
 		}
 		return null;
+	}
+
+	public boolean isExon(){
+		return this.value == 1;
 	}
 
 	public int getOrder(SectionName sn){

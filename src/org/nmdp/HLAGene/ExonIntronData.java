@@ -17,6 +17,8 @@ public abstract class ExonIntronData {
     protected Map<SectionName, String> plData = new HashMap<>();
 
     private String fullLength = "";
+    private String protien = "";
+
 
 
     public void setType(String type){
@@ -79,14 +81,14 @@ public abstract class ExonIntronData {
         if(geneData.containsKey(sn))
         return geneData.get(sn);
         else
-            return "";
+            return "null";
     }
 
     public String getIntron(SectionName sn) {
         if(geneData.containsKey(sn))
             return geneData.get(sn).toLowerCase();
         else
-            return "";
+            return "null";
     }
 
 
@@ -98,7 +100,7 @@ public abstract class ExonIntronData {
             return plData.get(sn);
         }
         else {
-            return "";
+            return "null";
         }
     }
 
@@ -124,6 +126,7 @@ public abstract class ExonIntronData {
      * @param intron List of index of intron start and end position.
      */
     abstract public void setExonIntron(String data, List<Integer> extron, List<Integer> intron);
+    abstract public void setExonIntronNoFilter(String data, List<Integer> extron, List<Integer> intron);
 
     abstract public String getCDS();
 
@@ -133,5 +136,15 @@ public abstract class ExonIntronData {
 
     abstract  public String toFasta();
 
+    abstract public  String getCDNA();
+
+    public void setProtein(String protien){
+        this.protien = protien;
+    }
+
+    public String getProtein() {
+        return this.protien;
+
+    }
 }
 

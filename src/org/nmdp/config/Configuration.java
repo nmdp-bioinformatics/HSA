@@ -15,12 +15,10 @@ public class Configuration {
     public static Mode mode;
     public static boolean expand;
     public static String CLUSTALO;
-    public static String nt2aa;
     private static Map<HLAGene, List<SectionName>> sectionMap = new HashMap<>();
     public static void loadSetting() throws FileNotFoundException {
         Scanner sn = new Scanner(new File("config.txt"));
         CLUSTALO = sn.nextLine();
-        nt2aa = sn.nextLine();
         String[] modeSetting = sn.next().split(",");
         mode = Mode.valueOf(modeSetting[1].toUpperCase());
 

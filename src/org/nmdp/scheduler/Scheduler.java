@@ -49,16 +49,7 @@ public class Scheduler {
         generetor = new FastaGenerator(mode, expand, this);
         File folder = new File("./input");
         File outputFolder = new File("./output");
-        try {
-            if (outputFolder.exists()) {
-                FileUtils.cleanDirectory(outputFolder);
-            }else{
-                outputFolder.mkdir();
-            }
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
+        //clearFiles(outputFolder);
         File[] inputList = folder.listFiles();
         for (int i = 0; i < inputList.length; i++) {
             String fileNameFull = inputList[i].getName().toLowerCase();
@@ -69,16 +60,33 @@ public class Scheduler {
 
         AlignmentController ac = new AlignmentController(this);
         ParseExon pe = new ParseExon();
-        Translator ts = new Translator();
+//        Task task = new Task(HLAGene.HLA_A, "PAC042016LR_2016-06-01-101813");
+//        pe.process(task);
 
-        while (!isTaskEmpty()){
+        while (!isTaskEmpty()) {
             Task task = geTask();
-            ac.process(task);
-            pe.process(task);
-            ts.process(task);
+           // if(task.gene == HLAGene.HLA_A){
+                ac.process(task);
+                pe.process(task);
+           // }
+
 
         }
 
 
+
+    }
+
+    private void clearFiles(File outputFolder) {
+        try {
+            if (outputFolder.exists()) {
+               FileUtils.cleanDirectory(outputFolder);
+            }else{
+                outputFolder.mkdir();
+            }
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
     }
 }

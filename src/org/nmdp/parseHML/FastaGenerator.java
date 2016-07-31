@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class FastaGenerator {
+    public static final String TAG = "FastaGenerator ";
     // The input file
     private File input;
     // The output file
@@ -174,7 +175,6 @@ public class FastaGenerator {
     private void printSampleID(List<PrintWriter> prList){
         for(PrintWriter pr : prList){
             pr.print(">id|" + sampleID + "|");
-            System.out.print(">id|" + sampleID + "|");
         }
 
     }
@@ -220,7 +220,7 @@ public class FastaGenerator {
                     seqData1.setGls(decodeGls);
                 } catch (Exception e) {
                     seqData1.setGls(Gls.get(0));
-                    System.out.println("Fail to decode");
+                    System.out.println(TAG + "Fail to decode");
                 }
                 break;
             case ENCODE:
@@ -231,17 +231,18 @@ public class FastaGenerator {
                     seqData1.setGls(encodeGls);
                 } catch (Exception e) {
                     seqData1.setGls(Gls.get(0));
-                    System.out.println("Fail to encode");
+                    System.out.println(TAG + "Fail to encode");
                 }
                 break;
         }
-        String sequence1 = getPs1(sequenceList);
+        String sequence1 = getPs1(sequenceList,gene);
         printSeq(prList, "|PS1", sequence1);
         //todo: enable insert
-        //seqData1.setSequence(sequence1);
+        seqData1.setPhaseSet("PS1");
+        seqData1.setSequence(sequence1);
 
         //insert into database
-        DatabaseUtil.insertSeqData(seqData1);
+        DatabaseUtil.insertSeqData(seqData1, fileName);
 
 
         //Print haploid 2
@@ -253,7 +254,7 @@ public class FastaGenerator {
         seqData2.setLocus(haplod2.getAttribute("locus"));
 
         printAttribute(prList, haplod2,"type");
-        seqData2.setLocus(haplod2.getAttribute("type"));
+        seqData2.setType(haplod2.getAttribute("type"));
 
         switch(mode){
             case NONE:
@@ -267,7 +268,7 @@ public class FastaGenerator {
                     print(prList, decodeGls);
                 } catch (Exception e) {
                     seqData2.setGls(Gls.get(1));
-                    System.out.println("Fail to decode");
+                    System.out.println(TAG + "Fail to decode");
                 }
                 break;
             case ENCODE:
@@ -278,19 +279,20 @@ public class FastaGenerator {
                     seqData2.setGls(encodeGls);
                 } catch (Exception e) {
                     seqData2.setGls(Gls.get(1));
-                    System.out.println("Fail to encode");
+                    System.out.println(TAG + "Fail to encode");
                 }
                 break;
         }
 
-        String sequence2 = getPs2(sequenceList);
+        String sequence2 = getPs2(sequenceList, gene);
         printSeq(prList, "|PS2", sequence2);
+        seqData2.setPhaseSet("PS2");
         seqData2.setSequence(sequence2);
 
         //Print a new line as divider
         println(prList);
         //todo: enable insert
-        //DatabaseUtil.insertSeqData(seqData2);
+        DatabaseUtil.insertSeqData(seqData2, fileName);
 
     }
 
@@ -302,7 +304,21 @@ public class FastaGenerator {
     private HLAGene getGeneType(Element e){
         String gene = e.getAttribute("locus");
         gene = gene.replace('-','_');
-        return HLAGene.valueOf(gene);
+        if(input.getName().contains("PAC")){
+            switch (HLAGene.valueOf(gene)){
+                case HLA_DPB1:
+                    return HLAGene.PB_DPB1;
+                case HLA_DQB1:
+                    return HLAGene.PB_DQB1;
+                case HLA_DRB1:
+                     return HLAGene.PB_DRB1;
+                default:
+                    return HLAGene.valueOf(gene);
+            }
+        }else {
+            return HLAGene.valueOf(gene);
+        }
+
     }
 
     private void print(List<PrintWriter> prList, String s){
@@ -321,8 +337,6 @@ public class FastaGenerator {
         for(PrintWriter pr: prList) {
             pr.println(ps);
             pr.println(seq);
-            System.out.println(ps);
-            System.out.println(seq);
         }
     }
 
@@ -338,8 +352,6 @@ public class FastaGenerator {
         for(PrintWriter pr: prList){
             pr.print(atrrName + "|");
             pr.print(value);
-            System.out.print(atrrName + "|");
-            System.out.print(value);
         }
     }
 
@@ -347,8 +359,6 @@ public class FastaGenerator {
         for(PrintWriter pr: prList){
             pr.print(atrrName + "|");
             pr.print(element.getAttribute(atrrName) + "|");
-            System.out.print(atrrName + "|");
-            System.out.print(element.getAttribute(atrrName) + "|");
         }
     }
 
@@ -415,7 +425,7 @@ public class FastaGenerator {
     }
 
     //Connect multiple phase sets by '-' indicates a gap of sequence
-    private String getPs1(NodeList list){
+    private String getPs1(NodeList list, HLAGene gene){
         if(list.getLength() == 0){
             return "null";
         }else if(list.getLength() == 1){
@@ -423,8 +433,15 @@ public class FastaGenerator {
             return seq1.getElementsByTagName("sequence").item(0).getTextContent();
         }
         else if(list.getLength() == 2){
-            Element seq1 = (Element) list.item(0);
-            return seq1.getElementsByTagName("sequence").item(0).getTextContent();
+            if(gene == HLAGene.PB_DRB1 |gene == HLAGene.PB_DPB1|gene == HLAGene.PB_DQB1 ){
+                Element seq1 = (Element) list.item(0);
+                Element seq2 = (Element) list.item(1);
+                return seq1.getElementsByTagName("sequence").item(0).getTextContent() + seq2.getElementsByTagName("sequence").item(0).getTextContent();
+            }else {
+                Element seq1 = (Element) list.item(0);
+                return seq1.getElementsByTagName("sequence").item(0).getTextContent();
+            }
+
         }else{
             StringBuilder sb = new StringBuilder();
             for(int i = 0; i< list.getLength(); i++){
@@ -443,7 +460,7 @@ public class FastaGenerator {
         }
     }
 
-    private String getPs2(NodeList list){
+    private String getPs2(NodeList list, HLAGene gene){
         if(list.getLength() == 0){
             return "null";
         }else if(list.getLength() == 1){
@@ -451,8 +468,16 @@ public class FastaGenerator {
             return seq1.getElementsByTagName("sequence").item(0).getTextContent();
         }
         else if(list.getLength() == 2){
-            Element seq1 = (Element) list.item(1);
-            return seq1.getElementsByTagName("sequence").item(0).getTextContent();
+            if(gene == HLAGene.PB_DRB1 |gene == HLAGene.PB_DPB1|gene == HLAGene.PB_DQB1 ){
+                Element seq1 = (Element) list.item(0);
+                Element seq2 = (Element) list.item(1);
+                return seq1.getElementsByTagName("sequence").item(0).getTextContent() + seq2.getElementsByTagName("sequence").item(0).getTextContent();
+            }
+            else{
+                Element seq1 = (Element) list.item(1);
+                return seq1.getElementsByTagName("sequence").item(0).getTextContent();
+            }
+
         }else{
             StringBuilder sb = new StringBuilder();
             for(int i = 0; i< list.getLength(); i++){

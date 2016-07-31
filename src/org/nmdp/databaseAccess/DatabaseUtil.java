@@ -12,6 +12,7 @@ public class DatabaseUtil
 	static final String HLA_TABLE_NAME = "HLAseqTable";
 	static final String EXON_TABLE_NAME = "ExonTable";
 	static final String ID = "ID";
+	static final String FILE_SOURCE = "FILE_SOURCE";
 	static final String SAMPLE_ID = "SAMPLE_ID";
 	static final String LOCUS = "LOCUS";
 	static final String TYPE = "TYPE";
@@ -43,6 +44,7 @@ public class DatabaseUtil
 	static final String INTRON6 = "INTRON6";
 	static final String INTRON7 = "INTRON7";
 	static final String THREE_NS = "UTR3";
+	static final String PROTIEN = "PROTIEN";
 
 
 
@@ -65,6 +67,7 @@ public class DatabaseUtil
 			Statement stmt = connection.createStatement();
 			String sql = "CREATE TABLE IF NOT EXISTS " + HLA_TABLE_NAME + "("
 					+ ID +" INTEGER PRIMARY KEY AUTOINCREMENT,"
+					+ FILE_SOURCE + " CHAR(100) NOT NULL,"
 					+ SAMPLE_ID+" CHAR(50) NOT NULL,"
 					+LOCUS+" CHAR(20) NOT NULL,"
 					+TYPE+" CHAR(20) NOT NULL,"
@@ -81,54 +84,58 @@ public class DatabaseUtil
 		}
 		 System.out.println("Create table successfully");
   }
-  
-  public static void creatExonTable(){
-	  try {
+
+	public static void creatExonTable(){
+		try {
 			Statement stmt = connection.createStatement();
 			String sql = "CREATE TABLE IF NOT EXISTS " + EXON_TABLE_NAME + "("
 					+ ID +" INTEGER PRIMARY KEY AUTOINCREMENT,"
+					+ FILE_SOURCE + " CHAR(100) NOT NULL,"
 					+ SAMPLE_ID+" CHAR(50) NOT NULL,"
 					+GLS+" TEXT NOT NULL,"
-				+PHASE_SET+" CHAR(10) NOT NULL,"
-				+FIVE_NS+" TEXT NOT NULL,"
-				+EXON1+ " TEXT NOT NULL,"
-				+INTRON1+ " TEXT NOT NULL,"
-				+EXON2+ " TEXT NOT NULL,"
-				+INTRON2+ " TEXT NOT NULL,"
-				+EXON3+ " TEXT NOT NULL,"
-				+INTRON3+ " TEXT NOT NULL,"
-				+EXON4+ " TEXT NOT NULL,"
-				+INTRON4+ " TEXT NOT NULL,"
-				+EXON5+ " TEXT NOT NULL,"
-				+INTRON5+ " TEXT NOT NULL,"
-				+EXON6+ " TEXT NOT NULL,"
-				+INTRON6+ " TEXT NOT NULL,"
-				+EXON7+ " TEXT NOT NULL,"
-				+INTRON7+ " TEXT NOT NULL,"
-				+EXON8+ " TEXT NOT NULL,"
-				+THREE_NS+ " TEXT NOT NULL,"
-				+EXON1_PL+ " TEXT NOT NULL,"
-				+EXON2_PL+ " TEXT NOT NULL,"
-				+EXON3_PL+ " TEXT NOT NULL,"
-				+EXON4_PL+ " TEXT NOT NULL,"
-				+EXON5_PL+ " TEXT NOT NULL,"
-				+EXON6_PL+ " TEXT NOT NULL,"
-				+EXON7_PL+ " TEXT NOT NULL,"
-				+EXON8_PL+ " TEXT NOT NULL"
-					+"UNIQUE ("+SAMPLE_ID+ ","+GLS+","+ PHASE_SET+" )"
+					+PHASE_SET+" CHAR(10) NOT NULL,"
+					+FIVE_NS+" TEXT NOT NULL,"
+					+EXON1+ " TEXT NOT NULL,"
+					+INTRON1+ " TEXT NOT NULL,"
+					+EXON2+ " TEXT NOT NULL,"
+					+INTRON2+ " TEXT NOT NULL,"
+					+EXON3+ " TEXT NOT NULL,"
+					+INTRON3+ " TEXT NOT NULL,"
+					+EXON4+ " TEXT NOT NULL,"
+					+INTRON4+ " TEXT NOT NULL,"
+					+EXON5+ " TEXT NOT NULL,"
+					+INTRON5+ " TEXT NOT NULL,"
+					+EXON6+ " TEXT NOT NULL,"
+					+INTRON6+ " TEXT NOT NULL,"
+					+EXON7+ " TEXT NOT NULL,"
+					+INTRON7+ " TEXT NOT NULL,"
+					+EXON8+ " TEXT NOT NULL,"
+					+THREE_NS+ " TEXT NOT NULL,"
+					+EXON1_PL+ " TEXT NOT NULL,"
+					+EXON2_PL+ " TEXT NOT NULL,"
+					+EXON3_PL+ " TEXT NOT NULL,"
+					+EXON4_PL+ " TEXT NOT NULL,"
+					+EXON5_PL+ " TEXT NOT NULL,"
+					+EXON6_PL+ " TEXT NOT NULL,"
+					+EXON7_PL+ " TEXT NOT NULL,"
+					+EXON8_PL+ " TEXT NOT NULL,"
+					+PROTIEN+" TEXT NOT NULL,"
+					+" UNIQUE ("+SAMPLE_ID+ ","+GLS+","+ PHASE_SET+" )"
 					+");";
+			System.out.println(sql);
 			stmt.executeUpdate(sql);
 			stmt.close();
+			System.out.println("Create exon table successfully");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		 System.out.println("Create exon table successfully");
-	  }
+
+	}
 	  
   
   
-  public static void insertSeqData(SequenceData data)  {
+  public static void insertSeqData(SequenceData data, String fileName)  {
 	  Statement stmt = null;
 	  try {
 		  stmt = connection.createStatement();
@@ -138,6 +145,7 @@ public class DatabaseUtil
 	  StringBuilder sb = new StringBuilder();
 		sb.append("INSERT INTO "+ HLA_TABLE_NAME);
 		sb.append("(");
+	  	sb.append(FILE_SOURCE + ",");
 		sb.append(SAMPLE_ID + ",");
 		sb.append(LOCUS + ",");
 		sb.append(TYPE + ",");
@@ -145,6 +153,7 @@ public class DatabaseUtil
 		sb.append(PHASE_SET + ",");
 		sb.append(SEQUENCE + ")");
 		sb.append("VALUES (");
+	  	sb.append(wrapString(fileName)+ ",");
 		sb.append(data.getSampleId() + ",");
 		sb.append(data.getLocus() + ",");
 		sb.append(data.getType() + ",");
@@ -153,16 +162,17 @@ public class DatabaseUtil
 		sb.append(data.getSequence());
 		sb.append(");");
 	  try {
+		  System.out.println(sb.toString());
 		  stmt.executeUpdate(sb.toString());
 		  stmt.close();
 	  } catch (SQLException e) {
-		  System.out.println("sql is incorrect. fail to insert " + data.toString());
+		  System.out.println("fail to insert duplicate data" + data.toString());
 	  }
 
 	  
   }
   
-  public static void insertExonData(ExonIntronData data) {
+  public static void insertExonData(ExonIntronData data, String fileName) {
 	  Statement stmt = null;
 	  try {
 		  stmt = connection.createStatement();
@@ -172,6 +182,7 @@ public class DatabaseUtil
 		StringBuilder sb = new StringBuilder();
 		sb.append("INSERT INTO "+ EXON_TABLE_NAME);
 		sb.append("(");
+	    sb.append(FILE_SOURCE + ",");
 		sb.append(SAMPLE_ID + ",");
 		sb.append(GLS + ",");
 		sb.append(PHASE_SET + ",");
@@ -199,9 +210,11 @@ public class DatabaseUtil
 		sb.append(EXON5_PL + ",");
 		sb.append(EXON6_PL + ",");
 		sb.append(EXON7_PL + ",");
-		sb.append(EXON8_PL + ")");
+	    sb.append(EXON8_PL + ",");
+		sb.append(PROTIEN + ")");
 		
 		sb.append("VALUES (");
+	    sb.append(wrapString(fileName)+ ",");
 		sb.append(wrapString(data.getSampleID()) + ",");
 		sb.append(wrapString(data.getGls()) + ",");
 		sb.append(wrapString(data.getPhase()) + ",");
@@ -229,13 +242,15 @@ public class DatabaseUtil
 		sb.append(wrapString(data.getExon_pl(SectionName.e5))+ ",");
 		sb.append(wrapString(data.getExon_pl(SectionName.e6))+ ",");
 		sb.append(wrapString(data.getExon_pl(SectionName.e7))+ ",");
-		sb.append(wrapString(data.getExon_pl(SectionName.e8)));
+	    sb.append(wrapString(data.getExon_pl(SectionName.e8))+ ",");
+		sb.append(wrapString(data.getProtein()));
 		sb.append(");");
 	  try {
+		  System.out.println(sb.toString());
 		  stmt.executeUpdate(sb.toString());
 		  stmt.close();
 	  } catch (SQLException e) {
-		  System.out.println("sql is incorrect. fail to insert " + data.toString());
+		  System.out.println("Fail to insert duplicate data." + data.toString());
 	  }
 
 	  

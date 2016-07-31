@@ -20,6 +20,9 @@ public class AlignmentController {
     }
 
     public void process(Task task){
+        if(FileSystem.getCluFile(task.getGene(), task.getFileName()).exists()){
+            return ;
+        }
         String command = buildCommand(task);
         Process p;
         try{
@@ -37,6 +40,7 @@ public class AlignmentController {
         String input = FileSystem.getFastaFile(task.getGene(), task.getFileName()).getAbsolutePath();
         String ref = FileSystem.getRefFile(task.getGene()).getAbsolutePath();
         String output = FileSystem.getCluFile(task.getGene(), task.getFileName()).getAbsolutePath();
+
         String[] command = new String[9];
         command[0] = Configuration.CLUSTALO;
         command[1] = "-i";

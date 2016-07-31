@@ -14,17 +14,18 @@ public class Launcher {
     private static Scheduler scheduler;
 
     public static void main(String[] args) {
+
         try {
             Configuration.loadSetting();
         } catch (FileNotFoundException e) {
-            System.out.println("config file is missing. program stopped");
+            HSALogger.log("config file is missing. program stopped");
         }
 
-//        //set up database
-//        DatabaseUtil.connectDatabase();
-//        DatabaseUtil.createSeqTable();
-//        DatabaseUtil.creatExonTable();
-//
+        //set up database
+        DatabaseUtil.connectDatabase();
+        DatabaseUtil.createSeqTable();
+        DatabaseUtil.creatExonTable();
+
         scheduler = new Scheduler();
 
         try {
@@ -36,9 +37,9 @@ public class Launcher {
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
-//
-//        //clean up connection to database
-//        DatabaseUtil.cleanUp();
+
+        //clean up connection to database
+        DatabaseUtil.cleanUp();
 
     }
 

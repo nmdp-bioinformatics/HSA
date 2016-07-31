@@ -8,6 +8,7 @@ import java.net.URL;
 
 
 public class GLSConverter {
+    String TAG = "GLSConverter ";
     String type = "text/plain";
     // HTTP POST request
     public String encode(String gls) throws Exception {
