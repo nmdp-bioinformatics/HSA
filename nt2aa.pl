@@ -1,8 +1,6 @@
 #!/usr/bin/perl 
 # This script will convert your DNA sequence to PROTEIN Sequence in 6 frames. Each frame will be saved seperately in a file.
-# Provide sequence file containing sequences in fasta format at the command line or when asked.
-# Author: Ratnesh Singh
-# Report bugs/errors at : ratnesh@hawaii.edu
+
 
 use strict;
 use warnings;
