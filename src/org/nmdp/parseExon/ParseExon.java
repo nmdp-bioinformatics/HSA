@@ -7,12 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.commons.io.FilenameUtils;
 import org.nmdp.HLAGene.*;
 import org.nmdp.config.Configuration;
+import org.nmdp.databaseAccess.DatabaseUtil;
 import org.nmdp.scheduler.Task;
+import org.nmdp.translate.Translator;
 import org.nmdp.util.FileSystem;
 
 public class    ParseExon{
+	public static final String TAG = "ParseExon ";
 	private Scanner scannerAlign;
 	private Scanner scannerFreq;
 	//cut the first 100 positions because of the low coverage.
@@ -26,20 +30,52 @@ public class    ParseExon{
 	private File inputFreq;
 	private File output;
 	private PrintWriter pw;
+	private PrintWriter protienWriter;
+	private PrintWriter reformatWriter;
 	private static final char DIVIDER = '-';
+	private String fileName;
+	private HLAGene geneType;
+	private Translator translator;
+	private int sampleNum = 0;
+
+	public ParseExon(){
+		translator = new Translator();
+	}
 
 	public void process(Task task){
 		File align = FileSystem.getCluFile(task.getGene(), task.getFileName());
 		output = FileSystem.getExonFile(task.getGene(), task.getFileName());
+		fileName = task.getFileName();
+		geneType = task.getGene();
 		try {
 			List<SectionName> sectionNames = Configuration.getSection(task.getGene());
 			run(align, sectionNames.get(0), sectionNames.get(1));
 		} catch (Exception e) {
-			System.out.println("Can't find section setting for "+ task.getGene().toString());
+			System.out.println(TAG + "Can't find section setting for "+ task.getGene().toString());
 			e.printStackTrace();
 			return;
 		}
 
+	}
+
+	/**
+	 *
+	 * @param input the clu file
+	 * @param output
+     * @param gene
+     */
+	public void process(File input, File output, HLAGene gene){
+		this.fileName = FilenameUtils.removeExtension(input.getName());
+		this.output = output;
+		geneType = gene;
+		try {
+			List<SectionName> sectionNames = Configuration.getSection(gene);
+			run(input, sectionNames.get(0), sectionNames.get(1));
+		} catch (Exception e) {
+			System.out.println(TAG + "Can't find section setting for "+ gene.toString());
+			e.printStackTrace();
+			return;
+		}
 
 	}
 
@@ -82,7 +118,6 @@ public class    ParseExon{
 		try {
 			scannerFreq = new Scanner(inputFreq);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		//skip title: 8 lines
@@ -106,8 +141,9 @@ public class    ParseExon{
 	private void setPrinter() {
 		try {
 			pw = new PrintWriter(output);
+			protienWriter = new PrintWriter(FileSystem.getProteinFile(geneType, fileName));
+			reformatWriter = new PrintWriter(FileSystem.getReformatFile(geneType, fileName));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -119,17 +155,19 @@ public class    ParseExon{
 		try {
 			scannerAlign = new Scanner(inputAlign);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		//Skip four lines to first row of geneData
 		scannerAlign.nextLine();
 		scannerAlign.nextLine();
 		scannerAlign.nextLine();
-		scannerAlign.nextLine();
 		while(scannerAlign.hasNext()){
 			try {
-				processSample(scannerAlign.nextLine());
+				String data = scannerAlign.nextLine();
+				if(data.length() > 16 && data.substring(0,16).contains("RefSeq")){
+					break;
+				}
+				processSample(data);
 			} catch (Exception e) {
 				e.printStackTrace();
 				break;
@@ -137,6 +175,8 @@ public class    ParseExon{
 		}
 		scannerAlign.close();
 		pw.close();
+		protienWriter.close();
+		reformatWriter.close();
 	}
 	private void processSample(String data) throws Exception {
 		if(data.charAt(0) == ' '){
@@ -153,20 +193,56 @@ public class    ParseExon{
 		ei.setPhase(split[8]);
 		ei.setExonIntron(data, indexExon, indexIntron);
 		ei.setFullLength(data);
+		ei.setProtein(translator.translate(ei.getCDNA(), geneType.getFrame()));
 		seqList.add(ei);
 		//TODO: enable insert database
-		//DatabaseUtil.insertExonData(ei);
+		DatabaseUtil.insertExonData(ei, fileName);
 		pw.println(ei.toFasta());
+		pw.println(ei.getCDNA());
+
+		//write protein
+		protienWriter.println(ei.toFasta());
+		protienWriter.println(ei.getProtein());
+
+		//write reformat file
+
+		for(SectionName sectionName: HLAGeneData.sortSectionList()){
+			reformatWriter.print(ei.getSampleID());
+			reformatWriter.print(",");
+			reformatWriter.print(ei.getGls());
+			reformatWriter.print(",");
+			reformatWriter.print(ei.getPhase());
+			reformatWriter.print(",");
+			if(sectionName.isExon()){
+				reformatWriter.print("exon");
+			}else {
+				if(sectionName == SectionName.US){
+					reformatWriter.print("Five_prime-UTR");
+				}else if(sectionName == SectionName.DS){
+					reformatWriter.print("Three_Prime-UTR");
+				}else {
+					reformatWriter.print("intron");
+				}
+			}
+			reformatWriter.print(",");
+
+			reformatWriter.print(sectionName.getNumber());
+			reformatWriter.print(",");
+			reformatWriter.println(ei.getExon(sectionName));
+		}
+
+
 	}
 		
 	/**
 	 * find the index of all exon and intron
 	 */
 	private void countExonIndex() {
+		indexExon.clear();
+		indexIntron.clear();
 		try {
 			scannerAlign = new Scanner(inputAlign);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		//Skip three lines to reference
@@ -175,7 +251,7 @@ public class    ParseExon{
 			if(line.length() <12){
 				continue;
 			}
-			String header = line.substring(0,12);
+			String header = line.substring(0,16);
 			if(header.contains("RefSeq")){
 				refSeq = line;
 				break;
@@ -184,13 +260,15 @@ public class    ParseExon{
 		}
 
 		//Find the first divider
-		while(refSeq.charAt(looper) != DIVIDER){
+		while(!Character.isLetter(refSeq.charAt(looper))){
 			looper ++;
 		}
 		while(looper < refSeq.length()){
 			findIntron();
 			findExon();
 		}
+		//Reset the looper to start position after processing one gene.
+		looper = 70;
 		scannerAlign.close();
 		
 	}
@@ -208,7 +286,7 @@ public class    ParseExon{
 		int end = looper-1;
 		indexIntron.add(start);
 		indexIntron.add(end);
-		System.out.println("intron: "+refSeq.substring(start, end+1));
+		System.out.println(TAG + "intron: "+refSeq.substring(start, end+1));
 	}
 	
 	private void findExon(){
@@ -226,7 +304,7 @@ public class    ParseExon{
 		int end = looper-1;
 		indexExon.add(start);
 		indexExon.add(end);
-		System.out.println("extron: "+refSeq.substring(start, end+1));
+		System.out.println(TAG + "extron: "+refSeq.substring(start, end+1));
 	}
 	
 

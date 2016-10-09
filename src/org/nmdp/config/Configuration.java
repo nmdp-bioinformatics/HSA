@@ -49,7 +49,7 @@ public class Configuration {
                     temp = new SectionName[]{SectionName.US, SectionName.DS};
                     return Arrays.asList(temp);
                 case HLA_B:
-                    temp = new SectionName[]{SectionName.US, SectionName.e7};
+                    temp = new SectionName[]{SectionName.US, SectionName.i7};
                     return Arrays.asList(temp);
                 default:
                     throw new Exception("The section data is not set for " + gene.toString());

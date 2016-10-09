@@ -40,6 +40,39 @@ public class HLAGeneData  extends ExonIntronData{
         }
     }
 
+    /**
+     * Return the sorted section list. Exon 5DS Intron 3DS
+     * @return he sorted section list.
+     */
+    public static List<SectionName> sortSectionList(){
+        boolean hasFive = false;
+        boolean hasThree = false;
+        List<SectionName> exons = new ArrayList<SectionName>();
+        List<SectionName> intron = new ArrayList<SectionName>();
+        for(SectionName sectionName : geneSections){
+            if(sectionName.isExon()){
+                exons.add(sectionName);
+            }else if(sectionName == SectionName.US){
+                hasFive = true;
+            }else if(sectionName == SectionName.DS){
+                hasThree = true;
+            }else {
+                intron.add(sectionName);
+            }
+        }
+        if(hasFive){
+            exons.add(SectionName.US);
+        }
+        for(SectionName sectionName : intron){
+            exons.add(sectionName);
+        }
+        if(hasThree){
+            exons.add(SectionName.DS);
+        }
+        return exons;
+
+    }
+
 
     @Override
     public void setExonIntron(String data, List<Integer> extron, List<Integer> intron) {

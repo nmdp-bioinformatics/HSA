@@ -4,6 +4,7 @@ import java.sql.*;
 import org.nmdp.HLAGene.ExonIntronData;
 import org.nmdp.HLAGene.SectionName;
 import org.nmdp.HLAGene.SequenceData;
+import org.nmdp.gfe.GFE;
 
 
 public class DatabaseUtil
@@ -11,6 +12,7 @@ public class DatabaseUtil
 	static final String DATA_BASE_NAME = "HLAsequence";
 	static final String HLA_TABLE_NAME = "HLAseqTable";
 	static final String EXON_TABLE_NAME = "ExonTable";
+	static final String GFE_TABLE_NAME = "GfeTable";
 	static final String ID = "ID";
 	static final String FILE_SOURCE = "FILE_SOURCE";
 	static final String SAMPLE_ID = "SAMPLE_ID";
@@ -82,8 +84,29 @@ public class DatabaseUtil
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		 System.out.println("Create table successfully");
+		 System.out.println("Create seq table successfully");
   }
+
+	public static void createGfeTable(){
+		try {
+			Statement stmt = connection.createStatement();
+			String sql = "CREATE TABLE IF NOT EXISTS " + GFE_TABLE_NAME + "("
+					+ ID +" INTEGER PRIMARY KEY AUTOINCREMENT,"
+					+ SAMPLE_ID+" CHAR(50) NOT NULL,"
+					+LOCUS+" CHAR(20) NOT NULL,"
+					+GLS+" TEXT NOT NULL,"
+					+PHASE_SET+" CHAR(10) NOT NULL,"
+					+SEQUENCE+" TEXT NOT NULL,"
+					+"UNIQUE ("+SAMPLE_ID+ ","+GLS+","+ PHASE_SET+" )"
+					+");";
+			stmt.executeUpdate(sql);
+			stmt.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Create gfe table successfully");
+	}
 
 	public static void creatExonTable(){
 		try {
@@ -169,8 +192,38 @@ public class DatabaseUtil
 		  System.out.println("fail to insert duplicate data" + data.toString());
 	  }
 
-	  
   }
+
+	public static void insertGFEData(GFE.GeneInfo data){
+		Statement stmt = null;
+		try {
+			stmt = connection.createStatement();
+		} catch (SQLException e) {
+			System.out.println("connection is broken. fail to insert " + data.toString());
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("INSERT INTO "+ GFE_TABLE_NAME);
+		sb.append("(");
+		sb.append(SAMPLE_ID + ",");
+		sb.append(LOCUS + ",");
+		sb.append(GLS + ",");
+		sb.append(PHASE_SET + ",");
+		sb.append(SEQUENCE + ")");
+		sb.append("VALUES (");
+		sb.append(data.id+ ",");
+		sb.append(data.gene.toString() + ",");
+		sb.append(data.gls + ",");
+		sb.append(data.phase + ",");
+		sb.append(data.gfe);
+		sb.append(");");
+		try {
+			System.out.println(sb.toString());
+			stmt.executeUpdate(sb.toString());
+			stmt.close();
+		} catch (SQLException e) {
+			System.out.println("fail to insert duplicate  GFE data" + data.toString());
+		}
+	}
   
   public static void insertExonData(ExonIntronData data, String fileName) {
 	  Statement stmt = null;

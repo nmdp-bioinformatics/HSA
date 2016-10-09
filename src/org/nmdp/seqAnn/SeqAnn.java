@@ -35,12 +35,20 @@ public class SeqAnn {
     private HLAGene gene;
 
     public static void main(String[] args){
-        new  SeqAnn().process();
+
     }
 
     public void process(){
+        process(HLAGene.HLA_A);
+        process(HLAGene.HLA_B);
+        process(HLAGene.HLA_C);
+        process(HLAGene.PB_DPB1);
+        process(HLAGene.HLA_DQB1);
+        process(HLAGene.HLA_DRB1);
+    }
+
+    private  void process(HLAGene gene){
         //process HLA_A
-        gene = HLAGene.HLA_A;
         List<SectionName> sectionNames = null;
         try {
             sectionNames = Configuration.getSection(gene);
@@ -48,15 +56,14 @@ public class SeqAnn {
             e.printStackTrace();
         }
         HLAGeneData.setType(sectionNames.get(0), sectionNames.get(1));
-        processFolder(FileSystem.getCluFolder(gene), gene);
+        processFolder(FileSystem.getCluFolder(gene));
     }
 
-    public void processFolder(File folder, HLAGene gene){
+    public void processFolder(File folder){
         File[] inputList = folder.listFiles();
-        processFile(inputList[0]);
-//        for (int i = 0; i < inputList.length; i++) {
-//                processFile(inputList[i]);
-//        }
+        for (int i = 0; i < inputList.length; i++) {
+                processFile(inputList[i]);
+        }
 
     }
 
@@ -302,6 +309,7 @@ public class SeqAnn {
     private void compareExon(HashMap<SectionName, String> map, SectionName sn, ExonIntronData ei) {
         String ref = refData.getExon(sn);
         String data = ei.getExon(sn);
+        Translator translator = new Translator();
         for(int i = 0; i< ref.length(); i++){
             if(i < data.length() && ref.charAt(i) == data.charAt(i)){
                 continue;
@@ -314,22 +322,20 @@ public class SeqAnn {
                 pw.print(protienPos);
                 pw.print(")");
                 //pw.print(ref.charAt(i));
-                pw.print(getRefAmio(sn,i));
+                String beforeDNA = getRefAmio(sn,i);
+                pw.print(beforeDNA);
                 pw.print("(");
-                pw.print(refData.getProtein().charAt(protienPos));
+                pw.print(translator.dna2aa(beforeDNA));
                 pw.print(")");
                 pw.print(">");
                 //pw.print(data.charAt(i));
-                pw.print(getAmio(map,sn,ei, i));
+                String afterDNA = getAmio(map,sn,ei, i);
+                pw.print(afterDNA);
                 pw.print("(");
-                if(protienPos >= ei.getProtein().length()){
-                    pw.print("-");
-                    pw.print(")");
-                }else {
-                    pw.print(ei.getProtein().charAt(protienPos));
-                    pw.print(")");
-                    pw.print(" ");
-                }
+                pw.print(translator.dna2aa(afterDNA));
+                pw.print(")");
+                pw.print(" ");
+
             }
         }
     }

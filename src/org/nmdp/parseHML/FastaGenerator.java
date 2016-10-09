@@ -368,7 +368,14 @@ public class FastaGenerator {
      * @param e The element to abstract gls string.
      * @return The array of gls string.
      */
+
     public List<String> getGls(Element e) {
+        if(e.getElementsByTagName("glstring").item(0) == null){
+            ArrayList<String> result = new ArrayList<String>();
+            result.add("null");
+            result.add("null");
+            return result;
+        }
         String myString = e.getElementsByTagName("glstring").item(0).getTextContent();
         if(myString.contains("|")){
             return parseGls(myString);

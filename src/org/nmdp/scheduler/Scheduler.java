@@ -3,10 +3,13 @@ package org.nmdp.scheduler;
 import org.apache.commons.io.FileUtils;
 import org.nmdp.HLAGene.HLAGene;
 import org.nmdp.alignment.AlignmentController;
+import org.nmdp.gfe.GFE;
 import org.nmdp.parseExon.ParseExon;
 import org.nmdp.parseHML.FastaGenerator;
 import org.nmdp.parseHML.Mode;
+import org.nmdp.seqAnn.SeqAnn;
 import org.nmdp.translate.Translator;
+import org.nmdp.util.FileSystem;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -65,15 +68,30 @@ public class Scheduler {
 
         while (!isTaskEmpty()) {
             Task task = geTask();
-           // if(task.gene == HLAGene.HLA_A){
+             if(task.gene == HLAGene.PB_DQB1 || task.gene == HLAGene.PB_DPB1 || task.gene == HLAGene.PB_DRB1){
+                 continue;
+             }
                 ac.process(task);
                 pe.process(task);
-           // }
-
-
         }
 
+        //run the load sh
+        Process p;
+        try{
+            p = Runtime.getRuntime().exec("/Users/wwang/IdeaProjects/HSA/GFE/load.sh");
+            p.waitFor();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
+        //process HLA-A, add more gene type as need.
+        GFE gfe = new GFE();
+        //gfe.process(HLAGene.HLA_A);
+
+        //Analysis the sequence.
+        new SeqAnn().process();
 
     }
 
