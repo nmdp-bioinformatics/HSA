@@ -42,6 +42,10 @@ public class FileSystem {
         return new File( folder + fileName+".fasta");
     }
 
+    public static File getCvsFile(String fileName){
+        return new File(ROOT + "/" + fileName + "_ann.cvs");
+    }
+
     public static File getRefFile(HLAGene gene){
         switch (gene){
             case HLA_A:

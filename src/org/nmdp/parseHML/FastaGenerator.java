@@ -30,7 +30,7 @@ public class FastaGenerator {
     private File input;
     // The output file
     private File output;
-    // The print writer to generate output file
+    // The print writer to generate fasta file
     private PrintWriter pr;
     private HashMap<HLAGene, PrintWriter> prMap;
     private String sampleID;

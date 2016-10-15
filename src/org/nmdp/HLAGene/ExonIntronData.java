@@ -146,5 +146,6 @@ public abstract class ExonIntronData {
         return this.protien;
 
     }
+    abstract public String toCVS();
 }
 

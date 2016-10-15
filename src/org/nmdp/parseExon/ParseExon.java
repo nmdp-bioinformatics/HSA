@@ -1,8 +1,6 @@
 package org.nmdp.parseExon;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -30,6 +28,8 @@ public class    ParseExon{
 	private File inputFreq;
 	private File output;
 	private PrintWriter pw;
+	// The print wirter to generate cvs file
+	private PrintWriter cvsWriter;
 	private PrintWriter protienWriter;
 	private PrintWriter reformatWriter;
 	private static final char DIVIDER = '-';
@@ -37,6 +37,9 @@ public class    ParseExon{
 	private HLAGene geneType;
 	private Translator translator;
 	private int sampleNum = 0;
+	FileWriter fw;
+	BufferedWriter bw;
+
 
 	public ParseExon(){
 		translator = new Translator();
@@ -143,7 +146,10 @@ public class    ParseExon{
 			pw = new PrintWriter(output);
 			protienWriter = new PrintWriter(FileSystem.getProteinFile(geneType, fileName));
 			reformatWriter = new PrintWriter(FileSystem.getReformatFile(geneType, fileName));
-		} catch (FileNotFoundException e) {
+			fw = new FileWriter(FileSystem.getCvsFile(fileName), true);
+			bw = new BufferedWriter(fw);
+			cvsWriter = new PrintWriter(bw);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -177,6 +183,7 @@ public class    ParseExon{
 		pw.close();
 		protienWriter.close();
 		reformatWriter.close();
+		cvsWriter.close();
 	}
 	private void processSample(String data) throws Exception {
 		if(data.charAt(0) == ' '){
@@ -197,6 +204,7 @@ public class    ParseExon{
 		seqList.add(ei);
 		//TODO: enable insert database
 		DatabaseUtil.insertExonData(ei, fileName);
+		cvsWriter.println(ei.toCVS());
 		pw.println(ei.toFasta());
 		pw.println(ei.getCDNA());
 
@@ -230,6 +238,9 @@ public class    ParseExon{
 			reformatWriter.print(",");
 			reformatWriter.println(ei.getExon(sectionName));
 		}
+
+		//write cvs file
+		cvsWriter.print(ei.toString());
 
 
 	}

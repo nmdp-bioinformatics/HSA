@@ -1,5 +1,7 @@
 package org.nmdp.HLAGene;
 
+import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
+
 public class SequenceData {
 	String sampleId;
 	String locus;
@@ -59,4 +61,5 @@ public class SequenceData {
 	public String toString(){
 		return sampleId + " " + locus + " " + phaseSet;
 	}
+
 }

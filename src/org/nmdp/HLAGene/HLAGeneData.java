@@ -148,5 +148,38 @@ public class HLAGeneData  extends ExonIntronData{
         return "";
     }
 
+    public String toCVS(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(getSampleID() + ",");
+        sb.append(getGls()+ ",");
+        sb.append(getPhase() + ",");
+        sb.append(getIntron(SectionName.US) + ",");
+        sb.append(getExon(SectionName.e1) + ",");
+        sb.append(getIntron(SectionName.i1) + ",");
+        sb.append(getExon(SectionName.e2) + ",");
+        sb.append(getIntron(SectionName.i2) + ",");
+        sb.append(getExon(SectionName.e3) + ",");
+        sb.append(getIntron(SectionName.i3) + ",");
+        sb.append(getExon(SectionName.e4) + ",");
+        sb.append(getIntron(SectionName.i4) + ",");
+        sb.append(getExon(SectionName.e5) + ",");
+        sb.append(getIntron(SectionName.i5) + ",");
+        sb.append(getExon(SectionName.e6) + ",");
+        sb.append(getIntron(SectionName.i6) + ",");
+        sb.append(getExon(SectionName.e7) + ",");
+        sb.append(getIntron(SectionName.i7) + ",");
+        sb.append(getExon(SectionName.e8) + ",");
+        sb.append(getIntron(SectionName.DS)+ ",");
+        sb.append(getExon_pl(SectionName.e1)+ ",");
+        sb.append(getExon_pl(SectionName.e2)+ ",");
+        sb.append(getExon_pl(SectionName.e3)+ ",");
+        sb.append(getExon_pl(SectionName.e4)+ ",");
+        sb.append(getExon_pl(SectionName.e5)+ ",");
+        sb.append(getExon_pl(SectionName.e6)+ ",");
+        sb.append(getExon_pl(SectionName.e7)+ ",");
+        sb.append(getExon_pl(SectionName.e8)+ ",");
+        return sb.toString();
+    }
+
 
 }

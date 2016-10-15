@@ -44,27 +44,13 @@ public class Scheduler {
     }
 
 
-    public void onFastaIsReady(){
-        //start to do alignment
-    }
 
-    public void start(Mode mode, boolean expand) throws IOException, SAXException, ParserConfigurationException {
+    public void start(String input, Mode mode, boolean expand) throws IOException, SAXException, ParserConfigurationException {
         generetor = new FastaGenerator(mode, expand, this);
-        File folder = new File("./input");
-        File outputFolder = new File("./output");
-        //clearFiles(outputFolder);
-        File[] inputList = folder.listFiles();
-        for (int i = 0; i < inputList.length; i++) {
-            String fileNameFull = inputList[i].getName().toLowerCase();
-            if (fileNameFull.contains("hml") || fileNameFull.contains("xml")) {
-                generetor.run(inputList[i]);
-            }
-        }
+        generetor.run(new File(input));
 
         AlignmentController ac = new AlignmentController(this);
         ParseExon pe = new ParseExon();
-//        Task task = new Task(HLAGene.HLA_A, "PAC042016LR_2016-06-01-101813");
-//        pe.process(task);
 
         while (!isTaskEmpty()) {
             Task task = geTask();
