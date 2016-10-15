@@ -237,12 +237,8 @@ public class FastaGenerator {
         }
         String sequence1 = getPs1(sequenceList,gene);
         printSeq(prList, "|PS1", sequence1);
-        //todo: enable insert
         seqData1.setPhaseSet("PS1");
         seqData1.setSequence(sequence1);
-
-        //insert into database
-        DatabaseUtil.insertSeqData(seqData1, fileName);
 
 
         //Print haploid 2
@@ -291,8 +287,6 @@ public class FastaGenerator {
 
         //Print a new line as divider
         println(prList);
-        //todo: enable insert
-        DatabaseUtil.insertSeqData(seqData2, fileName);
 
     }
 

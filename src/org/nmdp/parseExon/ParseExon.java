@@ -202,8 +202,7 @@ public class    ParseExon{
 		ei.setFullLength(data);
 		ei.setProtein(translator.translate(ei.getCDNA(), geneType.getFrame()));
 		seqList.add(ei);
-		//TODO: enable insert database
-		DatabaseUtil.insertExonData(ei, fileName);
+
 		cvsWriter.println(ei.toCVS());
 		pw.println(ei.toFasta());
 		pw.println(ei.getCDNA());

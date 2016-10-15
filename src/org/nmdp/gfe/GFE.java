@@ -99,7 +99,6 @@ public class GFE {
             pw.print(",");
             data.setGFE(sb.toString());
             pw.println(sb.toString());
-            DatabaseUtil.insertGFEData(data);
 
         }
 

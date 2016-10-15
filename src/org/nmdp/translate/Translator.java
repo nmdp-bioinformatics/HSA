@@ -119,7 +119,7 @@ public class Translator {
 
     public String dna2aa(String dna){
         if(dna == null || dna.length() != 3){
-            HSALogger.error(TAG + "The DNA length must be 3 for translation! But it is  "+ dna);
+            System.out.println(TAG + "The DNA length must be 3 for translation! But it is  "+ dna);
             return "*";
         }
         if(map.containsKey(dna)){
