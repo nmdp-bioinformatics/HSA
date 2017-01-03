@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import org.apache.commons.io.FilenameUtils;
 import org.nmdp.HLAGene.*;
 import org.nmdp.config.Configuration;
-import org.nmdp.databaseAccess.DatabaseUtil;
 import org.nmdp.scheduler.Task;
 import org.nmdp.translate.Translator;
 import org.nmdp.util.FileSystem;
@@ -39,6 +37,7 @@ public class    ParseExon{
 	private int sampleNum = 0;
 	FileWriter fw;
 	BufferedWriter bw;
+	private boolean notSplitHeader = false;
 
 
 	public ParseExon(){
@@ -52,6 +51,8 @@ public class    ParseExon{
 		geneType = task.getGene();
 		try {
 			List<SectionName> sectionNames = Configuration.getSection(task.getGene());
+			System.out.println(sectionNames.get(0).toString());
+			System.out.println(sectionNames.get(1).toString());
 			run(align, sectionNames.get(0), sectionNames.get(1));
 		} catch (Exception e) {
 			System.out.println(TAG + "Can't find section setting for "+ task.getGene().toString());
@@ -61,6 +62,11 @@ public class    ParseExon{
 
 	}
 
+	public void processFasta(Task task){
+		notSplitHeader = true;
+		process(task);
+	}
+
 	/**
 	 *
 	 * @param input the clu file
@@ -68,7 +74,7 @@ public class    ParseExon{
      * @param gene
      */
 	public void process(File input, File output, HLAGene gene){
-		this.fileName = FilenameUtils.removeExtension(input.getName());
+		this.fileName = FileSystem.getFileName(input);
 		this.output = output;
 		geneType = gene;
 		try {
@@ -91,7 +97,7 @@ public class    ParseExon{
 	public void run(File align, SectionName start, SectionName end){
 		inputAlign = align;
 		setPrinter();
-		HLAGeneData.setType(start, end);
+		HLAGeneData.setType(geneType,start, end);
 		countExonIndex();
 		extratExons();
 
@@ -111,7 +117,7 @@ public class    ParseExon{
 		inputFreq = freq;
 		
 		setPrinter();
-		HLAGeneData.setType(start, end);
+		HLAGeneData.setType(geneType,start, end);
 		countExonIndex();
 		extratExons();
 		//extraFreq();
@@ -145,7 +151,9 @@ public class    ParseExon{
 		try {
 			pw = new PrintWriter(output);
 			protienWriter = new PrintWriter(FileSystem.getProteinFile(geneType, fileName));
-			reformatWriter = new PrintWriter(FileSystem.getReformatFile(geneType, fileName));
+			FileWriter fw2 = new FileWriter(FileSystem.getReformatFile(geneType, fileName), true);
+			BufferedWriter bw2 = new BufferedWriter(fw2);
+			reformatWriter = new PrintWriter(bw2);
 			fw = new FileWriter(FileSystem.getCvsFile(fileName), true);
 			bw = new BufferedWriter(fw);
 			cvsWriter = new PrintWriter(bw);
@@ -190,14 +198,21 @@ public class    ParseExon{
 			//If the geneData is the last line, do not process
 			return;
 		}
-		//split the geneData by white space or |
-		String[] split = data.split(" |\\|");
+
 		ExonIntronData ei = new HLAGeneData();
-		ei.setSampleId(split[1]);
-		ei.setGeneType(split[3]);
-		ei.setType(split[5]);
-		ei.setGls(split[7]);
-		ei.setPhase(split[8]);
+		if(notSplitHeader){
+			String[] split = data.split("\\s+");
+			ei.setSampleId(split[0]);
+		}else{
+			//split the geneData by white space or |
+			String[] split = data.split(" |\\|");
+			ei.setSampleId(split[1]);
+			ei.setGeneType(split[3]);
+			ei.setType(split[5]);
+			ei.setGls(split[7]);
+			ei.setPhase(split[8]);
+		}
+
 		ei.setExonIntron(data, indexExon, indexIntron);
 		ei.setFullLength(data);
 		ei.setProtein(translator.translate(ei.getCDNA(), geneType.getFrame()));
@@ -213,19 +228,22 @@ public class    ParseExon{
 
 		//write reformat file
 
-		for(SectionName sectionName: HLAGeneData.sortSectionList()){
+		List<SectionName> list = HLAGeneData.sortSectionList();
+		for(int i =0; i < list.size(); i++){
 			reformatWriter.print(ei.getSampleID());
 			reformatWriter.print(",");
 			reformatWriter.print(ei.getGls());
 			reformatWriter.print(",");
 			reformatWriter.print(ei.getPhase());
 			reformatWriter.print(",");
-			if(sectionName.isExon()){
+			if(list.get(i).isExon()){
 				reformatWriter.print("exon");
 			}else {
-				if(sectionName == SectionName.US){
+				if(list.get(i) == SectionName.US){
 					reformatWriter.print("Five_prime-UTR");
-				}else if(sectionName == SectionName.DS){
+				}else if(list.get(i) == SectionName.DS){
+					reformatWriter.print("Three_Prime-UTR");
+				}else if((i == list.size()-1) && (list.size() == 2 + geneType.getIntronNumber()+geneType.getExonNumber())){
 					reformatWriter.print("Three_Prime-UTR");
 				}else {
 					reformatWriter.print("intron");
@@ -233,14 +251,10 @@ public class    ParseExon{
 			}
 			reformatWriter.print(",");
 
-			reformatWriter.print(sectionName.getNumber());
+			reformatWriter.print(list.get(i).getNumber());
 			reformatWriter.print(",");
-			reformatWriter.println(ei.getExon(sectionName));
+			reformatWriter.println(ei.getExon(list.get(i)));
 		}
-
-		//write cvs file
-		cvsWriter.print(ei.toString());
-
 
 	}
 		
@@ -314,7 +328,7 @@ public class    ParseExon{
 		int end = looper-1;
 		indexExon.add(start);
 		indexExon.add(end);
-		System.out.println(TAG + "extron: "+refSeq.substring(start, end+1));
+		System.out.println(TAG + "exon: "+refSeq.substring(start, end+1));
 	}
 	
 

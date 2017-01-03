@@ -55,7 +55,7 @@ public class SeqAnn {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        HLAGeneData.setType(sectionNames.get(0), sectionNames.get(1));
+        HLAGeneData.setType(gene, sectionNames.get(0), sectionNames.get(1));
         processFolder(FileSystem.getCluFolder(gene));
     }
 
@@ -152,7 +152,7 @@ public class SeqAnn {
         int end = looper-1;
         indexExon.add(start);
         indexExon.add(end);
-        System.out.println(TAG + "extron: "+refSeq.substring(start, end+1));
+        System.out.println(TAG + "exon: "+refSeq.substring(start, end+1));
     }
 
     /**
@@ -249,7 +249,7 @@ public class SeqAnn {
         }
         StringBuilder sb = new StringBuilder();
         String input = ei.getExon(sn);
-        //3 is invalid frame number. Vaild number are 0,1,2
+        //3 is invalid frame number. Valid number are 0,1,2
         int preFrame = 3;
         for(int i = 0; i< input.length(); i++){
             if(input.charAt(i) == '-'){

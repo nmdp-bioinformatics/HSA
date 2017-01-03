@@ -5,6 +5,7 @@ import org.nmdp.scheduler.Scheduler;
 import org.nmdp.scheduler.Task;
 import org.nmdp.util.FileSystem;
 
+import java.io.File;
 import java.io.IOException;
 
 
@@ -13,10 +14,12 @@ import java.io.IOException;
  */
 public class AlignmentController {
 
-    Scheduler scheduler;
+    private File input = null;
 
-    public AlignmentController(Scheduler scheduler){
-        this.scheduler = scheduler;
+    public AlignmentController(){
+    }
+    public AlignmentController(File input){
+        this.input = input;
     }
 
     public void process(Task task){
@@ -37,18 +40,25 @@ public class AlignmentController {
     }
 
     private String buildCommand(Task task) {
-        String input = FileSystem.getFastaFile(task.getGene(), task.getFileName()).getAbsolutePath();
+
+        String input ;
+        if(this.input!= null){
+            input = this.input.getAbsolutePath();
+        }else {
+            input = FileSystem.getFastaFile(task.getGene(), task.getFileName()).getAbsolutePath();
+        }
         String ref = FileSystem.getRefFile(task.getGene()).getAbsolutePath();
         String output = FileSystem.getCluFile(task.getGene(), task.getFileName()).getAbsolutePath();
 
         String[] command = new String[9];
-        command[0] = Configuration.CLUSTALO;
+//        command[0] = Configuration.CLUSTALO;
+        command[0] = "clustalo";
         command[1] = "-i";
         command[2] = input;
         command[3] = "--p1="+ref;
         command[4] = "--outfmt=clu";
         command[5] = "--output-order=input-order";
-        command[6] = "--wrap=9000";
+        command[6] = "--wrap=20000";
         command[7] = "-o";
         command[8] = output;
 

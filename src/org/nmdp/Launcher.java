@@ -1,7 +1,6 @@
 package org.nmdp;
 
 
-import org.apache.commons.io.FilenameUtils;
 import org.nmdp.HLAGene.HLAGene;
 import org.nmdp.alignment.AlignmentController;
 import org.nmdp.config.Configuration;
@@ -12,8 +11,11 @@ import org.nmdp.util.FileSystem;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.CodeSource;
 import java.util.HashMap;
 
 public class Launcher {
@@ -24,25 +26,40 @@ public class Launcher {
     private static HLAGene geneType;
     private static HashMap<String, String> paranMpa = new HashMap<>();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws URISyntaxException {
+
+        CodeSource codeSource = Launcher.class.getProtectionDomain().getCodeSource();
+        File jarFile = new File(codeSource.getLocation().toURI().getPath());
+        String jarDir = jarFile.getParentFile().getPath();
+        FileSystem.ROOT = jarDir;
+//        FileSystem.ROOT = ".";
+        FileSystem.FOLDER = FileSystem.ROOT + FileSystem.FOLDER;
+        System.out.println("Folder is "+ FileSystem.FOLDER);
         try{
             getParameters(args);
         }catch (IndexOutOfBoundsException e){
             System.out.println("parameter is missing. program stopped");
+            return;
+        }
+
+        if(paranMpa.containsKey(OUTPUT)){
+            Configuration.gfeLoadOutput = paranMpa.get(OUTPUT);
         }
 
         try {
-
-//            FileSystem.ROOT = paranMpa.get(OUTPUT);
-            Configuration.loadSetting();
+            Configuration.loadSetting(FileSystem.ROOT+"/config.txt");
         } catch (FileNotFoundException e) {
             System.out.println("config file is missing. program stopped");
+            return;
         }
 
         scheduler = new Scheduler();
+        String input = paranMpa.get(INPUT);
+        input = input.toLowerCase();
 
-        if (paranMpa.get(INPUT).contains("hml") || paranMpa.get(INPUT).contains("xml")) {
+        if (input.contains("hml") || input.contains("xml")) {
             try {
+                System.out.println("the input file is "+input.toString());
                 scheduler.start(paranMpa.get(INPUT), Configuration.mode,Configuration.expand);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -51,15 +68,16 @@ public class Launcher {
             } catch (ParserConfigurationException e) {
                 e.printStackTrace();
             }
-        }else if(paranMpa.get(INPUT).contains("fasta") && geneType != null){
+        }else if(input.contains("fasta") && geneType != null){
             //process fasta file
-            AlignmentController ac = new AlignmentController(scheduler);
+            File fastaFile = new File(input);
+            AlignmentController ac = new AlignmentController(fastaFile);
             ParseExon pe = new ParseExon();
 
-            String fileName = FilenameUtils.removeExtension(paranMpa.get(INPUT));
+            String fileName = FileSystem.getFileName(fastaFile);
             Task task = new Task(geneType, fileName);
             ac.process(task);
-            pe.process(task);
+            pe.processFasta(task);
 
         }else{
             System.out.println("parameter format is not right. program stopped");

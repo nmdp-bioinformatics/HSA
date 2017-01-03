@@ -1,6 +1,5 @@
 package org.nmdp.HLAGene;
 
-import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
 
 public class SequenceData {
 	String sampleId;

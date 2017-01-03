@@ -1,9 +1,7 @@
 package org.nmdp.parseHML;
 
-import org.apache.commons.io.FilenameUtils;
 import org.nmdp.HLAGene.HLAGene;
 import org.nmdp.HLAGene.SequenceData;
-import org.nmdp.databaseAccess.DatabaseUtil;
 import org.nmdp.scheduler.Scheduler;
 import org.nmdp.scheduler.Task;
 import org.nmdp.util.FileSystem;
@@ -23,6 +21,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 
 public class FastaGenerator {
     public static final String TAG = "FastaGenerator ";
@@ -49,6 +48,7 @@ public class FastaGenerator {
         this.mode = mode;
         this.expand = expand;
         this.scheduler = scheduler;
+        System.out.println("fasta Generator "+ mode.toString());
     }
 
     /**
@@ -64,7 +64,7 @@ public class FastaGenerator {
         // Setup input and output file
         this.input = input;
 
-        fileName = FilenameUtils.removeExtension(this.input.getName());
+        fileName = getFileName(this.input.getName());
         output = FileSystem.getFastaFile(fileName);
 
         glsConverter = new GLSConverter();
@@ -82,6 +82,11 @@ public class FastaGenerator {
         //close printer
         closeAllPrint();
 
+    }
+
+    private String getFileName(String name) {
+        String[] list = name.split("\\.");
+        return list[0];
     }
 
     private void closeAllPrint() {
@@ -138,6 +143,7 @@ public class FastaGenerator {
             PrintWriter pr = null;
             try {
                 File file = FileSystem.getFastaFile(gene, fileName);
+                System.out.println("output is "+ file.getAbsolutePath());
                 pr = new PrintWriter(file);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -318,26 +324,32 @@ public class FastaGenerator {
     private void print(List<PrintWriter> prList, String s){
         for(PrintWriter pr: prList) {
             pr.println(s);
+//            System.out.println(s);
         }
     }
 
     private void println(List<PrintWriter> prList){
         for(PrintWriter pr: prList) {
             pr.println();
+//            System.out.println();
         }
     }
 
     private void printSeq(List<PrintWriter> prList, String ps, String seq) {
         for(PrintWriter pr: prList) {
             pr.println(ps);
+//            System.out.println(ps);
             pr.println(seq);
+//            System.out.println(seq);
         }
     }
 
     private void printAttribute(List<PrintWriter> prList, String atrrName, String value) {
         for(PrintWriter pr: prList){
             pr.print(atrrName + "|");
+//            System.out.print("|");
             pr.print(value + "|");
+//            System.out.print(value + "|");
         }
 
     }
@@ -346,6 +358,8 @@ public class FastaGenerator {
         for(PrintWriter pr: prList){
             pr.print(atrrName + "|");
             pr.print(value);
+//            System.out.print(atrrName + "|");
+//            System.out.print(value);
         }
     }
 
@@ -353,6 +367,8 @@ public class FastaGenerator {
         for(PrintWriter pr: prList){
             pr.print(atrrName + "|");
             pr.print(element.getAttribute(atrrName) + "|");
+//            System.out.print(atrrName + "|");
+//            System.out.print(element.getAttribute(atrrName) + "|");
         }
     }
 

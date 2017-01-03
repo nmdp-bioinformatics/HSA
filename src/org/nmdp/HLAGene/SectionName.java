@@ -20,6 +20,8 @@ public enum SectionName {
 	e7(1, 13, 7),
 	i7(0, 14, 7),
 	e8(1, 15, 8),
+	i8(0, 16, 8),
+	e9(1, 17, 9),
 	DS(0, 16, 1);
 
 	private int value;

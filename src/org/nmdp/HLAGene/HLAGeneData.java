@@ -2,6 +2,7 @@ package org.nmdp.HLAGene;
 
 
 
+import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion;
 import org.nmdp.HLAGene.SectionName;
 
 import java.util.ArrayList;
@@ -17,13 +18,15 @@ public class HLAGeneData  extends ExonIntronData{
     static SectionName end;
     public static List<SectionName> geneSections = new ArrayList<>();
     static String cDNA;
+    static HLAGene gene;
 
-    public static void setType(SectionName start, SectionName end){
+
+    public static void setType(HLAGene g, SectionName start, SectionName end){
         List<SectionName> dic = Arrays.asList(SectionName.values());
         geneSections.clear();
         HLAGeneData.start = start;
         HLAGeneData.end = end;
-
+        gene = g;
         boolean add = false;
         for(int i = 0; i< dic.size(); i++){
             if(dic.get(i) == start){
@@ -75,14 +78,14 @@ public class HLAGeneData  extends ExonIntronData{
 
 
     @Override
-    public void setExonIntron(String data, List<Integer> extron, List<Integer> intron) {
+    public void setExonIntron(String data, List<Integer> exon, List<Integer> intron) {
         int extornIndex = 0;
         int intronIndex = 0;
         StringBuilder sb = new StringBuilder();
         for(SectionName sn : geneSections){
             try{
                 if(sn.isExon()){
-                    geneData.put(sn, filterDivider(data.substring(extron.get(extornIndex), extron.get(extornIndex+1)+1)));
+                    geneData.put(sn, filterDivider(data.substring(exon.get(extornIndex), exon.get(extornIndex+1)+1)));
                     sb.append(geneData.get(sn));
                     extornIndex+=2;
                 }else {
@@ -100,14 +103,14 @@ public class HLAGeneData  extends ExonIntronData{
     }
 
     @Override
-    public void setExonIntronNoFilter(String data, List<Integer> extron, List<Integer> intron) {
+    public void setExonIntronNoFilter(String data, List<Integer> exon, List<Integer> intron) {
         int extornIndex = 0;
         int intronIndex = 0;
         StringBuilder sb = new StringBuilder();
         for(SectionName sn : geneSections){
             try{
                 if(sn.isExon()){
-                    geneData.put(sn, data.substring(extron.get(extornIndex), extron.get(extornIndex+1)+1));
+                    geneData.put(sn, data.substring(exon.get(extornIndex), exon.get(extornIndex+1)+1));
                     sb.append(geneData.get(sn));
                     extornIndex+=2;
                 }else {
@@ -169,6 +172,8 @@ public class HLAGeneData  extends ExonIntronData{
         sb.append(getExon(SectionName.e7) + ",");
         sb.append(getIntron(SectionName.i7) + ",");
         sb.append(getExon(SectionName.e8) + ",");
+        sb.append(getIntron(SectionName.i8) + ",");
+        sb.append(getExon(SectionName.e9) + ",");
         sb.append(getIntron(SectionName.DS)+ ",");
         sb.append(getExon_pl(SectionName.e1)+ ",");
         sb.append(getExon_pl(SectionName.e2)+ ",");

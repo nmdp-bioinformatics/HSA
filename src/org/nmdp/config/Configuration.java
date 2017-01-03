@@ -3,6 +3,7 @@ package org.nmdp.config;
 import org.nmdp.HLAGene.HLAGene;
 import org.nmdp.HLAGene.SectionName;
 import org.nmdp.parseHML.Mode;
+import org.nmdp.util.FileSystem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,11 +15,13 @@ import java.util.*;
 public class Configuration {
     public static Mode mode;
     public static boolean expand;
-    public static String CLUSTALO;
+    public static String gfeLoadOutput;
     private static Map<HLAGene, List<SectionName>> sectionMap = new HashMap<>();
-    public static void loadSetting() throws FileNotFoundException {
-        Scanner sn = new Scanner(new File("config.txt"));
-        CLUSTALO = sn.nextLine();
+    public static void loadSetting(String path) throws FileNotFoundException {
+        System.out.println("before to load setting");
+        System.out.println(path);
+        Scanner sn = new Scanner(new File(path));
+        System.out.println("after access file config.txt");
         String[] modeSetting = sn.next().split(",");
         mode = Mode.valueOf(modeSetting[1].toUpperCase());
 
@@ -46,10 +49,33 @@ public class Configuration {
             switch (gene){
                 case HLA_A:
                 case HLA_C:
-                    temp = new SectionName[]{SectionName.US, SectionName.DS};
+                    temp = new SectionName[]{SectionName.US, SectionName.i8};
                     return Arrays.asList(temp);
                 case HLA_B:
                     temp = new SectionName[]{SectionName.US, SectionName.i7};
+                    return Arrays.asList(temp);
+                case KIR3DL2:
+                case KIR2DP1:
+                case KIR3DS1:
+                case KIR3DL1:
+                    temp = new SectionName[]{SectionName.US, SectionName.DS};
+                    return Arrays.asList(temp);
+                case KIR2DL4:
+                case KIR2DL5A:
+                case KIR2DL5B:
+                case KIR2DS1:
+                case KIR2DS2:
+                case KIR2DS3:
+                case KIR2DS4:
+                case KIR2DS5:
+                case KIR3DL3:
+                case KIR2DL1:
+                case KIR2DL2:
+                case KIR2DL3:
+                    temp = new SectionName[]{SectionName.US, SectionName.i8};
+                    return Arrays.asList(temp);
+                case KIR3DP1:
+                    temp = new SectionName[]{SectionName.US, SectionName.i5};
                     return Arrays.asList(temp);
                 default:
                     throw new Exception("The section data is not set for " + gene.toString());

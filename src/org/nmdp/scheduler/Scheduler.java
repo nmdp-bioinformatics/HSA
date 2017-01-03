@@ -1,6 +1,5 @@
 package org.nmdp.scheduler;
 
-import org.apache.commons.io.FileUtils;
 import org.nmdp.HLAGene.HLAGene;
 import org.nmdp.alignment.AlignmentController;
 import org.nmdp.gfe.GFE;
@@ -49,7 +48,7 @@ public class Scheduler {
         generetor = new FastaGenerator(mode, expand, this);
         generetor.run(new File(input));
 
-        AlignmentController ac = new AlignmentController(this);
+        AlignmentController ac = new AlignmentController();
         ParseExon pe = new ParseExon();
 
         while (!isTaskEmpty()) {
@@ -62,35 +61,35 @@ public class Scheduler {
         }
 
         //run the load sh
-        Process p;
-        try{
-            p = Runtime.getRuntime().exec("/Users/wwang/IdeaProjects/HSA/GFE/load.sh");
-            p.waitFor();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        Process p;
+//        try{
+//            p = Runtime.getRuntime().exec("/Users/wwang/IdeaProjects/HSA/GFE/load.sh");
+//            p.waitFor();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
         //process HLA-A, add more gene type as need.
         GFE gfe = new GFE();
         //gfe.process(HLAGene.HLA_A);
 
         //Analysis the sequence.
-        new SeqAnn().process();
+        //new SeqAnn().process();
 
     }
 
-    private void clearFiles(File outputFolder) {
-        try {
-            if (outputFolder.exists()) {
-               FileUtils.cleanDirectory(outputFolder);
-            }else{
-                outputFolder.mkdir();
-            }
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-    }
+//    private void clearFiles(File outputFolder) {
+//        try {
+//            if (outputFolder.exists()) {
+//               //FileUtils.cleanDirectory(outputFolder);
+//            }else{
+//                outputFolder.mkdir();
+//            }
+//        } catch (IOException e1) {
+//            // TODO Auto-generated catch block
+//            e1.printStackTrace();
+//        }
+//    }
 }
