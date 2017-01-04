@@ -25,7 +25,7 @@ public class Configuration {
         String[] modeSetting = sn.next().split(",");
         mode = Mode.valueOf(modeSetting[1].toUpperCase());
 
-        //No error checking. user has to make sure to enter "false" or "true" to this option.
+        //No error checking. user has to make sure to enter "false" or "true" to this option (It was changed to -g option for annotation only).
         String[] expandSetting = sn.next().split(",");
         expand = "true".equals(expandSetting[1].toLowerCase());
 

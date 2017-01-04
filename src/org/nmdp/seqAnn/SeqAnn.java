@@ -83,7 +83,7 @@ public class SeqAnn {
     }
 
     /**
-     * find the index of all exon and intron
+     * find the index of all exon sections and intron sections
      */
     private void countExonIndex(File input) {
         indexExon.clear();

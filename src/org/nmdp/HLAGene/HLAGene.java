@@ -3,6 +3,8 @@ package org.nmdp.HLAGene;
 /**
  * Created by Will on 6/4/16.
  */
+// expanded to KIR, see readme and order_number
+
 public enum HLAGene {
     HLA_A(0, 8, 7),
     HLA_B(0, 7, 6),

@@ -3,6 +3,9 @@ package org.nmdp.HLAGene;
 import java.util.Arrays;
 import java.util.List;
 
+
+// US: upper-stream, DS: Down-stream
+
 public enum SectionName {
 	US(0, 0, 1),
 	e1(1, 1, 1),
