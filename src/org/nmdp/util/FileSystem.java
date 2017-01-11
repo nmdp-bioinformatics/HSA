@@ -70,6 +70,7 @@ public class FileSystem {
 
     public static File getRefFile(HLAGene gene){
         switch (gene){
+            //addNewCase2
             case HLA_A:
                 return new File(ROOT+REF+HLA_A_REF);
             case HLA_B:

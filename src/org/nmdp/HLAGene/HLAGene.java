@@ -32,7 +32,7 @@ public enum HLAGene {
     KIR2DL1(0, 8, 7),
     KIR2DL2(0, 8, 7),
     KIR2DL3(0, 8, 7);
-
+    //addNewCase3
     private int frame;
     private int exonNum;
     private int intronNum;
