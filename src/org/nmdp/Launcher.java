@@ -69,7 +69,7 @@ public class Launcher {
                 e.printStackTrace();
             }
         }else if(input.contains("fasta") && geneType != null){
-            //process fasta file
+            //process fasta file, each fasta contains one genetype
             File fastaFile = new File(input);
             AlignmentController ac = new AlignmentController(fastaFile);
             ParseExon pe = new ParseExon();

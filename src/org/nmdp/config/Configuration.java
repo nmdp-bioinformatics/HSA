@@ -46,7 +46,7 @@ public class Configuration {
             return sectionMap.get(gene);
         }else{
             SectionName[] temp;
-            //addNewCase1
+            //add New Case based on the number of exon
             switch (gene){
                 case HLA_A:
                 case HLA_C:

@@ -42,6 +42,8 @@ public class FileSystem {
     public static final String KIR2DL3 ="KIR2DL3_Ref.clu";
 
 
+    //add the new string for new types and the new pre-alignments
+
 
 
 

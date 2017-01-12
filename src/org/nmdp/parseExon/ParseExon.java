@@ -129,7 +129,7 @@ public class    ParseExon{
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		//skip title: 8 lines
+		//skip clustalo title: 8 lines
 		for(int i = 0; i < 8; i++){
 			scannerFreq.nextLine();
 		}

@@ -37,7 +37,7 @@ public class SeqAnn {
     public static void main(String[] args){
 
     }
-
+    //define the gene type based on the exonic and intronic sequences
     public void process(){
         process(HLAGene.HLA_A);
         process(HLAGene.HLA_B);
