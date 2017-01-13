@@ -25,7 +25,7 @@ public class Configuration {
         String[] modeSetting = sn.next().split(",");
         mode = Mode.valueOf(modeSetting[1].toUpperCase());
 
-        //No error checking. user has to make sure to enter "false" or "true" to this option (It was changed to -g option for annotation only).
+        //No error checking. user has to make sure to enter "false" or "true" to this option (It was changed to -g option for annotating fasta input only).
         String[] expandSetting = sn.next().split(",");
         expand = "true".equals(expandSetting[1].toLowerCase());
 
@@ -53,6 +53,7 @@ public class Configuration {
                     temp = new SectionName[]{SectionName.US, SectionName.i8};
                     return Arrays.asList(temp);
                 case HLA_B:
+                case ABO
                     temp = new SectionName[]{SectionName.US, SectionName.i7};
                     return Arrays.asList(temp);
                 case KIR3DL2:

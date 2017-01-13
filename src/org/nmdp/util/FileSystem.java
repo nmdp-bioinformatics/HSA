@@ -43,6 +43,7 @@ public class FileSystem {
 
 
     //add the new string for new types and the new pre-alignments
+    //public static final String ABO ="ABO_Ref.clu";
 
 
 
@@ -125,6 +126,8 @@ public class FileSystem {
                 return new File(ROOT+REF+KIR2DL2);
             case KIR2DL3:
                 return new File(ROOT+REF+KIR2DL3);
+            case ABO:
+            return new File(ROOT+REF+ABO);
             default:
                 return null;
         }
