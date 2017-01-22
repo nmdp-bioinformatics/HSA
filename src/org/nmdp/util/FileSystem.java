@@ -5,6 +5,8 @@ import org.nmdp.config.Configuration;
 
 import java.io.File;
 
+import static org.nmdp.HLAGene.HLAGene.ABO;
+
 /**
  * Created by Will on 6/4/16.
  */
@@ -124,6 +126,7 @@ public class FileSystem {
                 return new File(ROOT+REF+KIR2DL1);
             case KIR2DL2:
                 return new File(ROOT+REF+KIR2DL2);
+
             case KIR2DL3:
                 return new File(ROOT+REF+KIR2DL3);
             case ABO:

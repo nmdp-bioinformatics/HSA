@@ -53,7 +53,7 @@ public class Configuration {
                     temp = new SectionName[]{SectionName.US, SectionName.i8};
                     return Arrays.asList(temp);
                 case HLA_B:
-                case ABO
+                case ABO:
                     temp = new SectionName[]{SectionName.US, SectionName.i7};
                     return Arrays.asList(temp);
                 case KIR3DL2:
