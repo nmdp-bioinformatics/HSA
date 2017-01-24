@@ -22,25 +22,39 @@ public class HLAGeneData  extends ExonIntronData{
 
 
     public static void setType(HLAGene g, SectionName start, SectionName end){
-        List<SectionName> dic = Arrays.asList(SectionName.values());
-        geneSections.clear();
-        HLAGeneData.start = start;
-        HLAGeneData.end = end;
-        gene = g;
-        boolean add = false;
-        for(int i = 0; i< dic.size(); i++){
-            if(dic.get(i) == start){
-                add = true;
-            }
-            if(dic.get(i) == end){
-                geneSections.add(dic.get(i));
-                add = false;
-            }
-            if(add){
-                geneSections.add(dic.get(i));
-            }
+        if(g == HLAGene.ABO){
+            //set up gene sections for ABO, which contains all exons.
+            geneSections.clear();
+            geneSections.add(SectionName.e1);
+            geneSections.add(SectionName.e2);
+            geneSections.add(SectionName.e3);
+            geneSections.add(SectionName.e4);
+            geneSections.add(SectionName.e5);
+            geneSections.add(SectionName.e6);
+            geneSections.add(SectionName.e7);
 
+        }else {
+            List<SectionName> dic = Arrays.asList(SectionName.values());
+            geneSections.clear();
+            HLAGeneData.start = start;
+            HLAGeneData.end = end;
+            gene = g;
+            boolean add = false;
+            for(int i = 0; i< dic.size(); i++){
+                if(dic.get(i) == start){
+                    add = true;
+                }
+                if(dic.get(i) == end){
+                    geneSections.add(dic.get(i));
+                    add = false;
+                }
+                if(add){
+                    geneSections.add(dic.get(i));
+                }
+
+            }
         }
+
     }
 
     /**

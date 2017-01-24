@@ -45,7 +45,7 @@ public class FileSystem {
 
 
     //add the new string for new types and the new pre-alignments
-    //public static final String ABO ="ABO_Ref.clu";
+    public static final String ABO ="ABO_Ref.clu";
 
 
 

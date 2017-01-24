@@ -264,6 +264,68 @@ public class    ParseExon{
 	private void countExonIndex() {
 		indexExon.clear();
 		indexIntron.clear();
+		//ABO index is predefined
+		if(geneType == HLAGene.ABO){
+			ArrayList<Integer> exonLengthList = new ArrayList<>();
+			exonLengthList.add(28);
+			exonLengthList.add(70);
+			exonLengthList.add(57);
+			exonLengthList.add(48);
+			exonLengthList.add(36);
+			exonLengthList.add(134);
+			exonLengthList.add(691);
+			countIndexBasedOnLength(exonLengthList);
+
+		}else {
+			countIndexBasedOnCharacter();
+		}
+	}
+
+	private void countIndexBasedOnLength(List<Integer> lengthList){
+		try {
+			scannerAlign = new Scanner(inputAlign);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		//Skip three lines to reference
+		while (scannerAlign.hasNextLine()){
+			String line = scannerAlign.nextLine();
+			if(line.length() <12){
+				continue;
+			}
+			String header = line.substring(0,16);
+			if(header.contains("RefSeq")){
+				refSeq = line;
+				break;
+			}
+
+		}
+
+		//Find the first divider
+		while(!Character.isLetter(refSeq.charAt(looper))){
+			looper ++;
+		}
+		//Find the start char of first exon
+		for(int length : lengthList){
+			int start = looper;
+			int end;
+			int count = 0;
+			while(count != length && looper < refSeq.length()){
+				if(refSeq.charAt(looper) != DIVIDER){
+					count++;
+				}
+				looper++;
+			}
+			end = looper-1;
+			indexExon.add(start);
+			indexExon.add(end);
+		}
+		//Reset the looper to start position after processing one gene.
+		looper = 70;
+		scannerAlign.close();
+
+	}
+	private void countIndexBasedOnCharacter() {
 		try {
 			scannerAlign = new Scanner(inputAlign);
 		} catch (FileNotFoundException e) {
@@ -294,8 +356,8 @@ public class    ParseExon{
 		//Reset the looper to start position after processing one gene.
 		looper = 70;
 		scannerAlign.close();
-		
 	}
+
 	private void findIntron() {
 		if(looper >= refSeq.length()){
 			return;
