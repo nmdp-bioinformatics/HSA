@@ -45,13 +45,13 @@ public class Launcher {
         if(paranMpa.containsKey(OUTPUT)){
             Configuration.gfeLoadOutput = paranMpa.get(OUTPUT);
         }
-
-        try {
-            Configuration.loadSetting(FileSystem.ROOT+"/config.txt");
-        } catch (FileNotFoundException e) {
-            System.out.println("config file is missing. program stopped");
-            return;
-        }
+//
+//        try {
+//            Configuration.loadSetting(FileSystem.ROOT+"/config.txt");
+//        } catch (FileNotFoundException e) {
+//            System.out.println("config file is missing. program stopped");
+//            return;
+//        }
 
         scheduler = new Scheduler();
         String input = paranMpa.get(INPUT);

@@ -15,7 +15,7 @@ public class    ParseExon{
 	public static final String TAG = "ParseExon ";
 	private Scanner scannerAlign;
 	private Scanner scannerFreq;
-	//cut the first 100 positions because of the low coverage.
+	//cut the first 50 positions because of the low coverage.
 	private int looper = 50;
 	private String refSeq;
 	private ArrayList<Integer> indexIntron = new ArrayList<Integer>();
@@ -282,6 +282,7 @@ public class    ParseExon{
 	}
 
 	private void countIndexBasedOnLength(List<Integer> lengthList){
+		looper = 18;
 		try {
 			scannerAlign = new Scanner(inputAlign);
 		} catch (FileNotFoundException e) {
@@ -321,7 +322,7 @@ public class    ParseExon{
 			indexExon.add(end);
 		}
 		//Reset the looper to start position after processing one gene.
-		looper = 70;
+		looper = 18;
 		scannerAlign.close();
 
 	}
