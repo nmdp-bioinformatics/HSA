@@ -29,6 +29,7 @@ public class    ParseExon{
 	// The print wirter to generate cvs file
 	private PrintWriter cvsWriter;
 	private PrintWriter protienWriter;
+	private PrintWriter validationWriter;
 	private PrintWriter reformatWriter;
 	private static final char DIVIDER = '-';
 	private String fileName;
@@ -120,9 +121,20 @@ public class    ParseExon{
 		HLAGeneData.setType(geneType,start, end);
 		countExonIndex();
 		extratExons();
+		closePrinter();
 		//extraFreq();
 		//PolymorphStaticsProessor.processPolyMoph(freqList, seqList, indexExon, indexIntron, pw);
 	}
+
+	private void closePrinter() {
+		pw.close();
+		protienWriter.close();
+		reformatWriter.close();
+		validationWriter.close();
+		cvsWriter.close();
+
+	}
+
 	private void extraFreq() {
 		try {
 			scannerFreq = new Scanner(inputFreq);
@@ -151,6 +163,7 @@ public class    ParseExon{
 		try {
 			pw = new PrintWriter(output);
 			protienWriter = new PrintWriter(FileSystem.getProteinFile(geneType, fileName));
+			validationWriter = new PrintWriter(FileSystem.getValidationFile(geneType, fileName));
 			FileWriter fw2 = new FileWriter(FileSystem.getReformatFile(geneType, fileName), true);
 			BufferedWriter bw2 = new BufferedWriter(fw2);
 			reformatWriter = new PrintWriter(bw2);
@@ -216,6 +229,7 @@ public class    ParseExon{
 		ei.setExonIntron(data, indexExon, indexIntron);
 		ei.setFullLength(data);
 		ei.setProtein(translator.translate(ei.getCDNA(), geneType.getFrame()));
+		ei.earlyEnd = translator.earlyEnd;
 		seqList.add(ei);
 
 		cvsWriter.println(ei.toCVS());
@@ -225,6 +239,11 @@ public class    ParseExon{
 		//write protein
 		protienWriter.println(ei.toFasta());
 		protienWriter.println(ei.getProtein());
+
+		//write valida data
+		if(ei.earlyEnd){
+			validationWriter.println(ei.getProtein());
+		}
 
 		//write reformat file
 

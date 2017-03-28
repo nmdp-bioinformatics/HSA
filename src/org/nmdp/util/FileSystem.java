@@ -48,6 +48,14 @@ public class FileSystem {
     public static final String ABO ="ABO_Ref.clu";
 
 
+    public static File getValidationFile(HLAGene gene, String fileName){
+        String folder = FOLDER;
+        File directory = new File(folder);
+        if(!directory.exists()){
+            directory.mkdirs();
+        }
+        return new File(folder+"/"+fileName+".txt");
+    }
 
 
     public static File getFastaFile(HLAGene gene, String fileName){

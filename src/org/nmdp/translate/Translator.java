@@ -14,6 +14,7 @@ import java.util.HashMap;
 public class Translator {
     private static final String TAG = Translator.class.getSimpleName();
     private HashMap<String, String> map = new HashMap<>();
+    public boolean earlyEnd;
 
     public  Translator(){
         map.put("TCA", "S");
@@ -110,8 +111,13 @@ public class Translator {
 
     public String translate(String dna, int frame){
         StringBuilder sb = new StringBuilder();
+        earlyEnd = false;
         for(int i= frame; i+2 < dna.length(); i = i+3){
-            sb.append(dna2aa(dna.substring(i, i+3)));
+            String aa = dna2aa(dna.substring(i, i+3));
+            sb.append(aa);
+            if(i+3 != dna.length() && aa.equals("*")){
+                earlyEnd = true;
+            }
         }
 
         return sb.toString();

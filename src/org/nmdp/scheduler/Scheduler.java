@@ -60,7 +60,7 @@ public class Scheduler {
                 pe.process(task);
         }
 
-        //run the load sh
+        // Stop run the load.sh
 //        Process p;
 //        try{
 //            p = Runtime.getRuntime().exec("/Users/wwang/IdeaProjects/HSA/GFE/load.sh");

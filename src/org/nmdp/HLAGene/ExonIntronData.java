@@ -19,12 +19,13 @@ public abstract class ExonIntronData {
     private String fullLength = "";
     private String protien = "";
 
-
+    public boolean earlyEnd;
 
     public void setType(String type){
         this.type = type;
 
     }
+
     public String getType(){
         return type;
     }
