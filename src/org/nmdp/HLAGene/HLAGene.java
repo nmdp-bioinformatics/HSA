@@ -32,7 +32,10 @@ public enum HLAGene {
     KIR2DL1(0, 8, 7),
     KIR2DL2(0, 8, 7),
     KIR2DL3(0, 8, 7),
-    ABO(0, 7, 6);
+    ABO(0, 7, 6),
+    DPB1(0, 2, 1),
+    DQB1(0, 2, 1),
+    DRB1(0, 2, 1);
     private int frame;
     private int exonNum;
     private int intronNum;

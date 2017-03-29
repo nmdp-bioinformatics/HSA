@@ -33,6 +33,11 @@ public class HLAGeneData  extends ExonIntronData{
             geneSections.add(SectionName.e6);
             geneSections.add(SectionName.e7);
 
+        }else if(g == HLAGene.DPB1 || g == HLAGene.DQB1 || g == HLAGene.DRB1){
+            //set up gene sections for ABO, which contains all exons.
+            geneSections.clear();
+            geneSections.add(SectionName.e1);
+            geneSections.add(SectionName.e2);
         }else {
             List<SectionName> dic = Arrays.asList(SectionName.values());
             geneSections.clear();

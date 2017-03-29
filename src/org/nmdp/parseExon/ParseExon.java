@@ -295,6 +295,16 @@ public class    ParseExon{
 			exonLengthList.add(691);
 			countIndexBasedOnLength(exonLengthList);
 
+		}else if(geneType == HLAGene.DPB1){
+			ArrayList<Integer> exonLengthList = new ArrayList<>();
+			exonLengthList.add(264);
+			exonLengthList.add(281);
+			countIndexBasedOnLength(exonLengthList);
+		}else if(geneType == HLAGene.DQB1 || geneType == HLAGene.DRB1){
+			ArrayList<Integer> exonLengthList = new ArrayList<>();
+			exonLengthList.add(270);
+			exonLengthList.add(281);
+			countIndexBasedOnLength(exonLengthList);
 		}else {
 			countIndexBasedOnCharacter();
 		}

@@ -46,6 +46,9 @@ public class FileSystem {
 
     //add the new string for new types and the new pre-alignments
     public static final String ABO ="ABO_Ref.clu";
+    public static final String DPB1 ="HLA-DPB1te_Ref.clu";
+    public static final String DQB1 ="HLA-DPB1te_Ref.clu";
+    public static final String DRB1 ="HLA-DPB1te_Ref.clu";
 
 
     public static File getValidationFile(HLAGene gene, String fileName){
@@ -139,6 +142,12 @@ public class FileSystem {
                 return new File(ROOT+REF+KIR2DL3);
             case ABO:
             return new File(ROOT+REF+ABO);
+            case DPB1:
+                return new File(ROOT+REF+DPB1);
+            case DQB1:
+                return new File(ROOT+REF+DQB1);
+            case DRB1:
+                return new File(ROOT+REF+DRB1);
             default:
                 return null;
         }

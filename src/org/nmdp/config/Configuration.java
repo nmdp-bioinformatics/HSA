@@ -48,6 +48,11 @@ public class Configuration {
             SectionName[] temp;
             //add New Case based on the number of exon
             switch (gene){
+                case DPB1:
+                case DQB1:
+                case DRB1:
+                    temp = new SectionName[]{SectionName.US, SectionName.i2};
+                    return Arrays.asList(temp);
                 case HLA_A:
                 case HLA_C:
                     temp = new SectionName[]{SectionName.US, SectionName.i8};
