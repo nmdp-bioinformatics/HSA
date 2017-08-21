@@ -85,6 +85,9 @@ public class FileSystem {
     }
 
     public static File getRefFile(HLAGene gene){
+        if(Configuration.customAlignFile != null){
+            return new File(Configuration.customAlignFile);
+        }
         switch (gene){
             //addNewCase2
             case HLA_A:

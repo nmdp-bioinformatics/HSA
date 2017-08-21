@@ -1,7 +1,5 @@
 package org.nmdp.alignment;
 
-import org.nmdp.config.Configuration;
-import org.nmdp.scheduler.Scheduler;
 import org.nmdp.scheduler.Task;
 import org.nmdp.util.FileSystem;
 
@@ -10,7 +8,7 @@ import java.io.IOException;
 
 
 /**
- * Created by wwang on 6/4/16.
+ *  The aligment controll uses clustalo to execute alignment.
  */
 public class AlignmentController {
 
@@ -51,7 +49,7 @@ public class AlignmentController {
         String output = FileSystem.getCluFile(task.getGene(), task.getFileName()).getAbsolutePath();
 
         String[] command = new String[9];
-//        command[0] = Configuration.CLUSTALO;
+
         command[0] = "clustalo";
         command[1] = "-i";
         command[2] = input;

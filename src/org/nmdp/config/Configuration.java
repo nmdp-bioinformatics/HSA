@@ -16,6 +16,7 @@ public class Configuration {
     public static Mode mode;
     public static boolean expand;
     public static String gfeLoadOutput;
+    public static String customAlignFile = null;
     private static Map<HLAGene, List<SectionName>> sectionMap = new HashMap<>();
     public static void loadSetting(String path) throws FileNotFoundException {
         System.out.println("before to load setting");
