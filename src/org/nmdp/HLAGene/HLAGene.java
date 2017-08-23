@@ -3,6 +3,8 @@ package org.nmdp.HLAGene;
 /**
  * Created by Will on 6/4/16.
  */
+// expanded to KIR, see readme and order_number
+
 public enum HLAGene {
     HLA_A(0, 8, 7),
     HLA_B(0, 7, 6),
@@ -12,8 +14,28 @@ public enum HLAGene {
     HLA_DQB1(2, 6, 5),
     PB_DRB1(2, 5, 4),
     PB_DPB1(2, 5, 4),
-    PB_DQB1(2, 6, 5);
-
+    PB_DQB1(2, 6, 5),
+    KIR3DP1(0, 5,4),
+    KIR2DL4(0, 8, 7),
+    KIR2DL5A(0, 8, 7),
+    KIR2DL5B(0, 8, 7),
+    KIR2DS1(0, 8, 7),
+    KIR2DS2(0, 8, 7),
+    KIR2DS3(0, 8, 7),
+    KIR2DS4(0, 8, 7),
+    KIR2DS5(0, 8, 7),
+    KIR3DL3(0, 8, 7),
+    KIR3DL1(0,9,8),
+    KIR3DL2(0,9,8),
+    KIR2DP1(0,9,8),
+    KIR3DS1(0,9,8),
+    KIR2DL1(0, 8, 7),
+    KIR2DL2(0, 8, 7),
+    KIR2DL3(0, 8, 7),
+    ABO(0, 7, 6),
+    DPB1(0, 2, 1),
+    DQB1(0, 2, 1),
+    DRB1(0, 2, 1);
     private int frame;
     private int exonNum;
     private int intronNum;

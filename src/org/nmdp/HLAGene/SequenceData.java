@@ -1,5 +1,6 @@
 package org.nmdp.HLAGene;
 
+
 public class SequenceData {
 	String sampleId;
 	String locus;
@@ -59,4 +60,5 @@ public class SequenceData {
 	public String toString(){
 		return sampleId + " " + locus + " " + phaseSet;
 	}
+
 }

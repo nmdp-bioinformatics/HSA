@@ -1,6 +1,5 @@
 package org.nmdp.scheduler;
 
-import org.apache.commons.io.FileUtils;
 import org.nmdp.HLAGene.HLAGene;
 import org.nmdp.alignment.AlignmentController;
 import org.nmdp.gfe.GFE;
@@ -44,27 +43,13 @@ public class Scheduler {
     }
 
 
-    public void onFastaIsReady(){
-        //start to do alignment
-    }
 
-    public void start(Mode mode, boolean expand) throws IOException, SAXException, ParserConfigurationException {
+    public void start(String input, Mode mode, boolean expand) throws IOException, SAXException, ParserConfigurationException {
         generetor = new FastaGenerator(mode, expand, this);
-        File folder = new File("./input");
-        File outputFolder = new File("./output");
-        //clearFiles(outputFolder);
-        File[] inputList = folder.listFiles();
-        for (int i = 0; i < inputList.length; i++) {
-            String fileNameFull = inputList[i].getName().toLowerCase();
-            if (fileNameFull.contains("hml") || fileNameFull.contains("xml")) {
-                generetor.run(inputList[i]);
-            }
-        }
+        generetor.run(new File(input));
 
-        AlignmentController ac = new AlignmentController(this);
+        AlignmentController ac = new AlignmentController();
         ParseExon pe = new ParseExon();
-//        Task task = new Task(HLAGene.HLA_A, "PAC042016LR_2016-06-01-101813");
-//        pe.process(task);
 
         while (!isTaskEmpty()) {
             Task task = geTask();
@@ -75,36 +60,36 @@ public class Scheduler {
                 pe.process(task);
         }
 
-        //run the load sh
-        Process p;
-        try{
-            p = Runtime.getRuntime().exec("/Users/wwang/IdeaProjects/HSA/GFE/load.sh");
-            p.waitFor();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        // Stop run the load.sh
+//        Process p;
+//        try{
+//            p = Runtime.getRuntime().exec("/Users/wwang/IdeaProjects/HSA/GFE/load.sh");
+//            p.waitFor();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
         //process HLA-A, add more gene type as need.
         GFE gfe = new GFE();
         //gfe.process(HLAGene.HLA_A);
 
         //Analysis the sequence.
-        new SeqAnn().process();
+        //new SeqAnn().process();
 
     }
 
-    private void clearFiles(File outputFolder) {
-        try {
-            if (outputFolder.exists()) {
-               FileUtils.cleanDirectory(outputFolder);
-            }else{
-                outputFolder.mkdir();
-            }
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-    }
+//    private void clearFiles(File outputFolder) {
+//        try {
+//            if (outputFolder.exists()) {
+//               //FileUtils.cleanDirectory(outputFolder);
+//            }else{
+//                outputFolder.mkdir();
+//            }
+//        } catch (IOException e1) {
+//            // TODO Auto-generated catch block
+//            e1.printStackTrace();
+//        }
+//    }
 }
